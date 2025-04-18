@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import './App.css'
+import Select, { selectClasses } from '@mui/joy/Select';
+import Option from '@mui/joy/Option';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+
 
 interface Token {
   symbol: string;
@@ -33,17 +37,33 @@ function App() {
           <div className="logo"><img src="/flashifi_logo.png" alt="logo" height="60px" /></div>
           <nav className="main-nav">
             <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
-              Simple Swap
+              Flash Loan Arbitrage
             </button>
             <button className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
-              Pro Swap
+              Strategies
             </button>
           </nav>
+
+          <Select
+            defaultValue='ethereum'
+            placeholder="Select network"
+            indicator={<KeyboardArrowDown />}
+            sx={{
+              width: 240,
+              [`& .${selectClasses.indicator}`]: {
+                transition: '0.2s',
+                [`&.${selectClasses.expanded}`]: {
+                  transform: 'rotate(-180deg)',
+                },
+              },
+            }}
+          >
+          <Option value="ethereum">Ethereum</Option>
+          <Option value="sepolia">Sepolia</Option>
+          <Option value="alpha0">Superchain Alpha 0</Option>
+          <Option value="alpha1">Superchain Alpha 1</Option>
+              </Select>
           <div className="header-actions">
-            <button className="network-select">
-              Ethereum
-              <span className="dropdown-arrow">▼</span>
-            </button>
             <button className="connect-wallet-button">
               Connect Wallet
             </button>

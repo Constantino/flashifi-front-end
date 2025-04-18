@@ -67,6 +67,11 @@
   transition: all 0.2s;
 }
 
+.nav-button:focus {
+  outline: none;
+  border: none;
+}
+
 .nav-button.active {
   background-color: var(--surface-bg);
   color: var(--accent-color);
@@ -214,6 +219,11 @@ input::placeholder {
   transition: transform 0.2s;
 }
 
+.swap-button:focus {
+  outline: none;
+  border-color: var(--border-color);
+}
+
 .swap-button:hover {
   transform: scale(1.1);
   background-color: var(--secondary-bg);
@@ -245,6 +255,11 @@ input::placeholder {
   transition: all 0.2s;
 }
 
+.swap-action-button:focus {
+  outline: none;
+  border: none;
+}
+
 .swap-action-button:hover {
   opacity: 0.9;
   transform: translateY(-1px);
@@ -260,6 +275,11 @@ input::placeholder {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.connect-wallet-button:focus {
+  outline: none;
+  border: none;
 }
 
 .connect-wallet-button:hover {
@@ -287,4 +307,11 @@ input::placeholder {
 .wallet-action-button:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* Remove focus styles from all buttons */
+button:focus,
+button:focus-visible {
+  outline: none;
+  border-color: transparent;
 }

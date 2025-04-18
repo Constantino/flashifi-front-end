@@ -30,7 +30,7 @@ function App() {
     <div className="app-wrapper">
       <header className="header">
         <div className="header-content">
-          <div className="logo">1inch</div>
+          <div className="logo"><img src="/flashifi_logo.png" alt="logo" height="60px" /></div>
           <nav className="main-nav">
             <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
               Simple Swap

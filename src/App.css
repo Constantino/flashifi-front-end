@@ -1,8 +1,10 @@
 :root {
-  --primary-bg: #0E111B;
-  --secondary-bg: #141822;
-  --surface-bg: #1B1F2C;
-  --accent-color: #2F8AF5;
+  --primary-bg: #000000;
+  --secondary-bg: #111111;
+  --surface-bg: #1A1A1A;
+  --accent-color: #40E0E3;
+  --accent-gradient: linear-gradient(45deg, #FFD23F, #FF6B97);
+  --cyan-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --text-primary: #FFFFFF;
   --text-secondary: #808080;
   --border-color: #2B3139;
@@ -18,13 +20,19 @@
 
 .header {
   height: var(--header-height);
-  background-color: var(--secondary-bg);
-  border-bottom: 1px solid var(--border-color);
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 100;
+  border: none;
+}
+
+.header::after {
+  display: none;
 }
 
 .header-content {
@@ -61,7 +69,7 @@
 
 .nav-button.active {
   background-color: var(--surface-bg);
-  color: var(--text-primary);
+  color: var(--accent-color);
 }
 
 .header-actions {
@@ -80,6 +88,12 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.network-select:hover {
+  border-color: var(--border-color);
+  opacity: 0.9;
 }
 
 .main-content {
@@ -219,7 +233,7 @@ input::placeholder {
 }
 
 .swap-action-button {
-  background-color: var(--accent-color);
+  background: var(--cyan-gradient);
   border: none;
   padding: 16px;
   border-radius: var(--border-radius);
@@ -228,15 +242,16 @@ input::placeholder {
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .swap-action-button:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 .connect-wallet-button {
-  background-color: var(--accent-color);
+  background: var(--cyan-gradient);
   border: none;
   padding: 8px 16px;
   border-radius: 12px;
@@ -244,9 +259,32 @@ input::placeholder {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
 .connect-wallet-button:hover {
   opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Add wallet-specific button styles */
+.wallet-button,
+.wallet-connect-button,
+.wallet-action-button {
+  background: var(--cyan-gradient);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.wallet-button:hover,
+.wallet-connect-button:hover,
+.wallet-action-button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
 }

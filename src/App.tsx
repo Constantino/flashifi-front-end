@@ -113,7 +113,7 @@ function App() {
             </div>
 
             <button className="swap-action-button">
-              Connect Wallet
+              Swap
             </button>
           </div>
         </div>

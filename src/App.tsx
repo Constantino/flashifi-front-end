@@ -50,19 +50,28 @@ function App() {
             indicator={<KeyboardArrowDown />}
             sx={{
               width: 240,
+              backgroundColor: 'var(--surface-bg)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '12px',
+              color: 'var(--text-primary)',
+              '&:hover': {
+                backgroundColor: 'var(--surface-bg)',
+                borderColor: 'var(--accent-color)',
+              },
               [`& .${selectClasses.indicator}`]: {
                 transition: '0.2s',
                 [`&.${selectClasses.expanded}`]: {
                   transform: 'rotate(-180deg)',
                 },
               },
+              
             }}
           >
-          <Option value="ethereum">Ethereum</Option>
-          <Option value="sepolia">Sepolia</Option>
-          <Option value="alpha0">Superchain Alpha 0</Option>
-          <Option value="alpha1">Superchain Alpha 1</Option>
-              </Select>
+          <Option value="ethereum" >Ethereum</Option>
+          <Option value="sepolia" >Sepolia</Option>
+          <Option value="alpha0" >Superchain Alpha 0</Option>
+          <Option value="alpha1" >Superchain Alpha 1</Option>
+          </Select>
           <div className="header-actions">
             <button className="connect-wallet-button">
               Connect Wallet

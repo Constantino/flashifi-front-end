@@ -1,9 +1,9 @@
-:root {
+:root[data-theme="dark"] {
   --primary-bg: #000000;
   --secondary-bg: #181c24;
   --surface-bg: #1A1A1A;
   --accent-color: #40E0E3;
-  --accent-gradient: linear-gradient(45deg, #FFD23F, #FF6B97);
+  --accent-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --cyan-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --bg-gradient: radial-gradient(circle at 0% 0%, 
     rgba(64, 224, 227, 0.08) 0%,
@@ -18,10 +18,35 @@
   --header-height: 72px;
 }
 
+:root[data-theme="light"] {
+  --primary-bg: #F3F4F6;
+  --secondary-bg: #FFFFFF;
+  --surface-bg: #F8FAFC;
+  --accent-color: #0EA5E9;
+  --accent-gradient: #0EA5E9;
+  --cyan-gradient: #0EA5E9;
+  --bg-gradient: none;
+  --text-primary: #0F172A;
+  --text-secondary: #64748B;
+  --border-color: #E2E8F0;
+  --border-radius: 16px;
+  --header-height: 72px;
+}
+
+/* Default to dark theme */
+:root {
+  color-scheme: dark;
+}
+
+/* Theme transition */
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
 .app-wrapper {
   min-height: 100vh;
   background: var(--bg-gradient);
-  background-size: 200% 200%;
+  background-color: var(--primary-bg);
   color: var(--text-primary);
   position: relative;
 }
@@ -131,7 +156,7 @@
 
 .header-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   align-items: center;
 }
 
@@ -295,7 +320,7 @@ input::placeholder {
 }
 
 .swap-action-button {
-  background: var(--cyan-gradient);
+  background: var(--accent-gradient);
   border: none;
   padding: 16px;
   border-radius: var(--border-radius);
@@ -318,7 +343,7 @@ input::placeholder {
 }
 
 .connect-wallet-button {
-  background: var(--cyan-gradient);
+  background: var(--accent-gradient);
   border: none;
   padding: 8px 16px;
   border-radius: 12px;
@@ -366,4 +391,45 @@ button:focus,
 button:focus-visible {
   outline: none;
   border-color: transparent;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  padding: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.theme-toggle:hover {
+  background-color: var(--surface-bg);
+}
+
+.theme-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+[data-theme="light"] .connect-wallet-button,
+[data-theme="light"] .swap-action-button {
+  background: var(--accent-gradient);
+  color: white;
+}
+
+/* Dark theme specific styles */
+[data-theme="dark"] .connect-wallet-button,
+[data-theme="dark"] .swap-action-button {
+  background: var(--cyan-gradient);
+}
+
+/* Light theme specific styles */
+[data-theme="light"] .connect-wallet-button,
+[data-theme="light"] .swap-action-button {
+  background: var(--accent-gradient);
+  color: white;
 }

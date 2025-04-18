@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Select, { selectClasses } from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Avatar from '@mui/joy/Avatar';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 
 interface Token {
   symbol: string;
@@ -23,6 +25,15 @@ function App() {
   const [toToken, setToToken] = useState<Token>(commonTokens[1])
   const [amount, setAmount] = useState<string>('')
   const [activeTab, setActiveTab] = useState('simple')
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  };
 
   const handleSwapTokens = () => {
     const temp = fromToken
@@ -40,10 +51,10 @@ function App() {
           </div>
           <nav className="main-nav">
             <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
-              Flash Loan Arbitrage
+              Simple Swap
             </button>
             <button className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
-              Strategies
+              Pro Swap
             </button>
           </nav>
 
@@ -76,6 +87,9 @@ function App() {
           <Option value="alpha1" >Superchain Alpha 1</Option>
           </Select>
           <div className="header-actions">
+            <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
+              {theme === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
+            </button>
             <button className="connect-wallet-button">
               Connect Wallet
             </button>

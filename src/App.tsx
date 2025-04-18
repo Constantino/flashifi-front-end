@@ -1,34 +1,124 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
+interface Token {
+  symbol: string;
+  name: string;
+  logo?: string;
+}
+
+const commonTokens: Token[] = [
+  { symbol: 'ETH', name: 'Ethereum', logo: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png' },
+  { symbol: 'USDT', name: 'Tether USD', logo: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png' },
+  { symbol: 'USDC', name: 'USD Coin', logo: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png' },
+  { symbol: 'DAI', name: 'Dai Stablecoin', logo: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png' },
+]
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [fromToken, setFromToken] = useState<Token>(commonTokens[0])
+  const [toToken, setToToken] = useState<Token>(commonTokens[1])
+  const [amount, setAmount] = useState<string>('')
+  const [activeTab, setActiveTab] = useState('simple')
+
+  const handleSwapTokens = () => {
+    const temp = fromToken
+    setFromToken(toToken)
+    setToToken(temp)
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app-wrapper">
+      <header className="header">
+        <div className="header-content">
+          <div className="logo">1inch</div>
+          <nav className="main-nav">
+            <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
+              Simple Swap
+            </button>
+            <button className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
+              Pro Swap
+            </button>
+          </nav>
+          <div className="header-actions">
+            <button className="network-select">
+              Ethereum
+              <span className="dropdown-arrow">▼</span>
+            </button>
+            <button className="connect-wallet-button">
+              Connect Wallet
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="main-content">
+        <div className="swap-container">
+          <div className="swap-header">
+            <h1>Swap</h1>
+            <div className="swap-settings">
+              <button className="icon-button">⚙️</button>
+            </div>
+          </div>
+          
+          <div className="swap-box">
+            <div className="input-box">
+              <div className="input-header">
+                <span>You Pay</span>
+                <span className="balance">Balance: 0.0</span>
+              </div>
+              <div className="input-content">
+                <div className="token-select" onClick={() => {}}>
+                  <img src={fromToken.logo} alt={fromToken.symbol} className="token-logo" />
+                  <span>{fromToken.symbol}</span>
+                  <span className="dropdown-arrow">▼</span>
+                </div>
+                <input
+                  type="number"
+                  placeholder="0.0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <button className="swap-button" onClick={handleSwapTokens}>
+              ⇅
+            </button>
+
+            <div className="input-box">
+              <div className="input-header">
+                <span>You Receive</span>
+                <span className="balance">Balance: 0.0</span>
+              </div>
+              <div className="input-content">
+                <div className="token-select" onClick={() => {}}>
+                  <img src={toToken.logo} alt={toToken.symbol} className="token-logo" />
+                  <span>{toToken.symbol}</span>
+                  <span className="dropdown-arrow">▼</span>
+                </div>
+                <input
+                  type="number"
+                  placeholder="0.0"
+                  disabled
+                  value=""
+                />
+              </div>
+            </div>
+
+            <div className="rate-info">
+              <div className="rate-row">
+                <span>Rate</span>
+                <span>1 {fromToken.symbol} = 1,800.54 {toToken.symbol}</span>
+              </div>
+            </div>
+
+            <button className="swap-action-button">
+              Connect Wallet
+            </button>
+          </div>
+        </div>
+      </main>
+    </div>
   )
 }
 

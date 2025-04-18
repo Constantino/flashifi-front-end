@@ -51,10 +51,10 @@ function App() {
           </div>
           <nav className="main-nav">
             <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
-              Simple Swap
+              Flash Loan Arbitrage
             </button>
             <button className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
-              Pro Swap
+              Strategies
             </button>
           </nav>
 

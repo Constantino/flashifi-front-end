@@ -3,7 +3,7 @@ import './App.css'
 import Select, { selectClasses } from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
-
+import Avatar from '@mui/joy/Avatar';
 
 interface Token {
   symbol: string;
@@ -34,7 +34,10 @@ function App() {
     <div className="app-wrapper">
       <header className="header">
         <div className="header-content">
-          <div className="logo"><img src="/flashifi_logo.png" alt="logo" height="60px" /></div>
+          <div className="logo">
+            <img src="/flashifi_logo.png" alt="logo" />
+            <span className="logo-text">FlashiFi</span>
+          </div>
           <nav className="main-nav">
             <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
               Flash Loan Arbitrage

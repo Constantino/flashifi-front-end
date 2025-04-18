@@ -5,6 +5,12 @@
   --accent-color: #40E0E3;
   --accent-gradient: linear-gradient(45deg, #FFD23F, #FF6B97);
   --cyan-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
+  --bg-gradient: radial-gradient(circle at 0% 0%, 
+    rgba(64, 224, 227, 0.08) 0%,
+    rgba(15, 23, 42, 0.7) 20%,
+    rgba(8, 11, 21, 0.8) 40%,
+    rgba(0, 0, 0, 1) 80%
+  );
   --text-primary: #FFFFFF;
   --text-secondary: #808080;
   --border-color: #2B3139;
@@ -14,15 +20,47 @@
 
 .app-wrapper {
   min-height: 100vh;
-  background-color: var(--primary-bg);
+  background: var(--bg-gradient);
+  background-size: 200% 200%;
   color: var(--text-primary);
+  position: relative;
+}
+
+.app-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 100% 100%, 
+    rgba(34, 167, 190, 0.03) 0%,
+    rgba(37, 99, 235, 0.02) 25%,
+    transparent 50%
+  );
+  pointer-events: none;
+}
+
+.app-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 50% 0%, 
+    rgba(64, 224, 227, 0.02) 0%,
+    rgba(37, 99, 235, 0.01) 25%,
+    transparent 50%
+  );
+  pointer-events: none;
 }
 
 .header {
   height: var(--header-height);
-  background-color: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background-color: transparent;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   position: fixed;
   top: 0;
   left: 0;
@@ -46,10 +84,24 @@
 }
 
 .logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding-top: 10px;
+}
+
+.logo img {
+  height: 60px;
+}
+
+.logo-text {
+  font-size: 24px;
+  font-weight: 600;
+  background: linear-gradient(to right, #40E0E3, #2563EB);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.5px;
 }
 
 .main-nav {

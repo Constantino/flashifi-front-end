@@ -4,9 +4,10 @@ import '../App.css'
 import Stack from '@mui/joy/Stack';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
-import Select from '@mui/joy/Select';
+import Select, { selectClasses } from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Box from '@mui/joy/Box';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 
 interface Token {
     symbol: string;
@@ -38,31 +39,25 @@ export const ContentBox = () => {
     const [isInProgress, setIsInProgress] = useState(false)
     const activeAccount = "";
 
-    const handleChangeChainA = (event: ChangeEvent<HTMLSelectElement>) => {
-        // console.log('chain in use: ', chainInUse)
-        console.log("chain dropdown1: ", event.target.value)
-        let chainToUse = Number(event.target.value);
-        setChainTo(chainToUse)
-        setChainFrom(chainToUse == 0 ? 1 : 0)
-        if (chainFrom == 0 && chainToUse == 1) {
-            console.log('request change of network')
-            // console.log("switching to: ", superchainB)
-            //switchChain(superchainB)
-        }
-        if (chainFrom == 1 && chainToUse == 0) {
-            console.log('request change of network')
-            // console.log("switching to: ", superchainA)
-            //switchChain(superchainA)
-        }
+    const handleChangeChainA = (_: any, value: string | null) => {
+        if (value !== null) {
+            console.log("chain dropdown1: ", value)
+            setChainTo(value === '0' ? '1' : '0')
+            setChainFrom(value)
 
+            if (value === '1') {
+                console.log('request change of network')
+                // console.log("switching to: ", superchainB)
+                //switchChain(superchainB)
+            }
+            if (value === '0') {
+                console.log('request change of network')
+                // console.log("switching to: ", superchainA)
+                //switchChain(superchainA)
+            }
+        }
     };
 
-    const handleChangeChainB = (event: ChangeEvent<HTMLSelectElement>) => {
-        console.log("chain dropdown2: ", event.target.value)
-        let chainToUse = Number(event.target.value);
-        setChainTo(chainToUse)
-        setChainFrom(chainToUse == 0 ? 1 : 0)
-    };
 
     return (
         <div className="swap-container">
@@ -137,11 +132,24 @@ export const ContentBox = () => {
                             <FormLabel>From</FormLabel>
                             <Select
                                 value={chainFrom}
-                                onChange={(_, value) => {
-                                    if (value !== null) {
-                                        setChainTo(value === '0' ? '1' : '0');
-                                        setChainFrom(value);
-                                    }
+                                onChange={handleChangeChainA}
+                                indicator={<KeyboardArrowDown />}
+                                sx={{
+                                    backgroundColor: 'var(--surface-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '12px',
+                                    color: 'var(--text-primary)',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--surface-bg)',
+                                        borderColor: 'var(--accent-color)',
+                                    },
+                                    [`& .${selectClasses.indicator}`]: {
+                                        transition: '0.2s',
+                                        [`&.${selectClasses.expanded}`]: {
+                                            transform: 'rotate(-180deg)',
+                                        },
+                                    },
+
                                 }}
                             >
                                 <Option value="0">Devnet 0</Option>
@@ -154,11 +162,23 @@ export const ContentBox = () => {
                             <FormLabel>To</FormLabel>
                             <Select
                                 value={chainTo}
-                                onChange={(_, value) => {
-                                    if (value !== null) {
-                                        setChainFrom(value === '0' ? '1' : '0');
-                                        setChainTo(value);
-                                    }
+                                indicator={<KeyboardArrowDown />}
+                                sx={{
+                                    backgroundColor: 'var(--surface-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '12px',
+                                    color: 'var(--text-primary)',
+                                    '&:hover': {
+                                        backgroundColor: 'var(--surface-bg)',
+                                        borderColor: 'var(--accent-color)',
+                                    },
+                                    [`& .${selectClasses.indicator}`]: {
+                                        transition: '0.2s',
+                                        [`&.${selectClasses.expanded}`]: {
+                                            transform: 'rotate(-180deg)',
+                                        },
+                                    },
+
                                 }}
                                 disabled
                             >

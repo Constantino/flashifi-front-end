@@ -367,7 +367,7 @@ input::placeholder {
 
 .connect-wallet-button:hover {
   opacity: 0.85;
-  border: 1px solid var(--accent-color);
+  /* transform: translateY(-1px); */
 }
 
 /* Add wallet-specific button styles */

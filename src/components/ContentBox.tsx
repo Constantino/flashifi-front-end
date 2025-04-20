@@ -14,6 +14,11 @@ import Typography from '@mui/joy/Typography';
 import ClearIcon from '@mui/icons-material/Clear';
 import { defineChain } from "thirdweb/chains";
 import { useActiveAccount, useActiveWalletConnectionStatus, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
+import Button from '@mui/joy/Button';
+import { ethers5Adapter } from "thirdweb/adapters/ethers5";
+import { ethers } from 'ethers';
+import { abi as tokenAbi } from '../assets/tokenAbi.json';
+import { createThirdwebClient } from "thirdweb";
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -80,9 +85,12 @@ const commonTokens: Token[] = [
 
 export const ContentBox = () => {
 
+    const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
+
     const [fromToken, setFromToken] = useState<Token>(commonTokens[0])
     const [toToken, setToToken] = useState<Token>(commonTokens[1])
     const [amount, setAmount] = useState<string>('')
+    const [value, setValue] = useState(0)
 
     const handleSwapTokens = () => {
         const temp = fromToken
@@ -93,10 +101,31 @@ export const ContentBox = () => {
     const [chainFrom, setChainFrom] = useState('0')
     const [chainTo, setChainTo] = useState('1')
     const [isInProgress, setIsInProgress] = useState(false)
-    const activeAccount = "";
     const [advancedFeatures, setAdvancedFeatures] = useState(false);
-    const [ArbitrageContractAddress, setArbitrageContractAddress] = useState("");
+    const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
+
     const switchChain = useSwitchActiveWalletChain();
+    const activeAccount = useActiveAccount();
+    const address = activeAccount?.address;
+    const chainInUse = useActiveWalletChain()
+
+    const [loanAmountReceived, setLoanAmountReceived] = useState({})
+    const [ethSold, setEthSold] = useState({})
+    const [ethBought, setEthBought] = useState({})
+    const [loanAmountRepaid, setLoanAmountRepaid] = useState({})
+    const [profitSent, setProfitSent] = useState({})
+
+    const [isLoanReceived, setIsLoanReceived] = useState(false)
+    const [isEthSold, setIsEthSold] = useState(false)
+    const [isEthBought, setIsEthBought] = useState(false)
+    const [isLoanRepaid, setIsLoanRepaid] = useState(false)
+    const [isProfitSent, setIsProfitSent] = useState(false)
+
+    const [_flashLoanId, set_flashLoanId] = useState(0)
+
+    const client = createThirdwebClient({
+        clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
+    });
 
     const handleChangeChainA = (_: any, value: string | null) => {
         if (value !== null) {
@@ -124,6 +153,228 @@ export const ContentBox = () => {
         setAdvancedFeatures(!advancedFeatures)
     }
 
+    useEffect(() => {
+
+        setIsInProgress(false)
+        setValue(0)
+        setIsLoanReceived(false)
+        setIsEthSold(false)
+        setIsEthBought(false)
+        setIsLoanRepaid(false)
+        setIsProfitSent(false)
+
+    }, [address])
+
+    const executeFlashLoan = async () => {
+
+        setValue(0);
+        setIsLoanReceived(false)
+        setIsEthSold(false)
+        setIsEthBought(false)
+        setIsLoanRepaid(false)
+        setIsProfitSent(false)
+        setIsInProgress(true)
+
+        await callContract()
+    }
+
+    useEffect(() => {
+        console.log("useEffect loanAmountReceived called")
+        console.log("prev progress: ", value)
+        if (isLoanReceived && !isEthSold && !isEthBought && !isLoanRepaid && !isProfitSent) {
+            console.log("new progress: ", 20)
+            setValue(20)
+        }
+    }, [isLoanReceived])
+
+    useEffect(() => {
+        console.log("useEffect ethSold called")
+        console.log("prev progress: ", value)
+        if (isEthSold && !isEthBought && !isLoanRepaid && !isProfitSent) {
+            console.log("new progress: ", 40)
+            setValue(40)
+        }
+    }, [isEthSold])
+
+    useEffect(() => {
+        console.log("useEffect ethBought called")
+        console.log("prev progress: ", value)
+        if (isEthBought && !isLoanRepaid && !isProfitSent) {
+            console.log("new progress: ", 60)
+            setValue(60)
+        }
+    }, [isEthBought])
+
+    useEffect(() => {
+        console.log("useEffect loanAmountRepaid called")
+        console.log("prev progress: ", value)
+        if (isLoanRepaid && !isProfitSent) {
+            console.log("new progress: ", 80)
+            setValue(80)
+        }
+    }, [isLoanRepaid])
+
+    useEffect(() => {
+        console.log("useEffect profitSent called")
+        console.log("useEffect profitSent userAddress: ", profitSent)
+        console.log("prev progress: ", value)
+        if (isProfitSent) {
+            setValue(100)
+            console.log("new progress: ", 100)
+            setIsInProgress(false)
+        }
+    }, [isProfitSent])
+
+
+    const IsAddressChecksumGood = (address: string) => {
+        if (address === undefined) {
+            return false
+        }
+        if (!ethers.utils.isAddress(address)) {
+            return false
+        }
+        try {
+            const checksumAddress = ethers.utils.getAddress(address)
+            const icap = ethers.utils.getIcapAddress(address);
+            console.log("checksum address: ", checksumAddress);
+            return true;
+        } catch (error) {
+            console.log("error: ", error)
+            return false;
+        }
+
+    }
+
+
+    const getSigner = async (chain: any) => {
+        if (!activeAccount) {
+            throw new Error("Active account is undefined");
+        }
+        const signer = await ethers5Adapter.signer.toEthers({ client, chain: chain, account: activeAccount });
+        console.log("signer: ", signer);
+        return signer;
+    }
+
+    const suscribeToChainEvents = (connectedContractA: any, connectedContractB: any) => {
+        let flashLoanRecievedFilter = connectedContractA.filters.flashLoanRecieved(null, null, null, address);
+
+        connectedContractA.on(flashLoanRecievedFilter, (flashLoanId: any, loanAmountRecieved: any, chainId: any, userAddress: any) => {
+
+            setLoanAmountReceived({ flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
+            setIsLoanReceived(true)
+            console.log('loan amount received: ', { flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
+
+        })
+
+        let soldEthFilter = connectedContractB.filters.soldEth(null, null, null, address);
+        connectedContractB.on(soldEthFilter, (flashLoanId: any, amount: any, chainId: any, userAddress: any) => {
+            setEthSold({ flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress })
+            setIsEthSold(true)
+            console.log('sold eth: ', { flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress });
+        })
+
+
+        let boughtEthFilter = connectedContractB.filters.boughtEth(null, null, null, address);
+        connectedContractB.on(boughtEthFilter, (flashLoanId: any, amount: any, chainId: any, userAddress: any) => {
+            setEthBought({ flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress })
+            setIsEthBought(true)
+            console.log('bought eth: ', { flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress });
+        })
+
+
+        let flashLoanRepayedFilter = connectedContractA.filters.flashLoanRepayed(null, null, null, address);
+        connectedContractA.on(flashLoanRepayedFilter, (flashLoanId: any, loanAmount: any, chainId: any, userAddress: any) => {
+            setLoanAmountRepaid({ flashLoanId: flashLoanId, amount: loanAmount, chainId: chainId, userAddress: userAddress })
+            setIsLoanRepaid(true)
+            console.log('Flash loan repaid: ', { flashLoanId: flashLoanId, amount: loanAmount, chainId: chainId, userAddress: userAddress });
+        })
+
+        let sentProfitFilter = connectedContractA.filters.sentProfit(null, null, null, address);
+        connectedContractA.on(sentProfitFilter, (flashLoanId: any, profit: any, chainId: any, userAddress: any) => {
+            setProfitSent({ flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress })
+            setIsProfitSent(true)
+            console.log('profit sent: ', { flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress });
+        })
+    }
+
+    const callContract = async () => {
+
+        let willUseCustomArbitrageContract = false;
+        if (arbitrageContractAddress != "") {
+            console.log("arbitrageContractAddress: ", arbitrageContractAddress)
+            willUseCustomArbitrageContract = IsAddressChecksumGood(arbitrageContractAddress)
+            if (!willUseCustomArbitrageContract) {
+                alert("Invalid address for arbitrage contract")
+                setValue(0);
+                setIsInProgress(false);
+                return;
+            }
+        }
+
+        const signerA = await getSigner(superchainA);
+        const signerB = await getSigner(superchainB);
+
+        console.log("contract handler address: ", contractHandlerAddress)
+
+        const connectedContractA = new ethers.Contract(contractHandlerAddress, tokenAbi, signerA);
+        const connectedContractB = new ethers.Contract(contractHandlerAddress, tokenAbi, signerB);
+
+
+        console.log(connectedContractA)
+        console.log(connectedContractB)
+
+        setValue(0);
+
+        if (!chainInUse) {
+            throw new Error("chainInUse is undefined");
+        }
+
+        if (chainInUse.id == superchainA.id) {
+            try {
+                if (willUseCustomArbitrageContract) {
+                    await connectedContractA.callFlashLoanHandler(superchainB.id, arbitrageContractAddress).then(() => {
+                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                    });
+                } else {
+                    await connectedContractA.callFlashLoanHandler(superchainB.id).then(() => {
+                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                    });
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    alert(error.message);
+                } else {
+                    alert("An unknown error occurred");
+                }
+                setValue(0);
+                setIsInProgress(false);
+            }
+
+        } else {
+            try {
+                if (willUseCustomArbitrageContract) {
+                    await connectedContractB.callFlashLoanHandler(superchainA.id, arbitrageContractAddress).then(() => {
+                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                    });
+                } else {
+                    await connectedContractB.callFlashLoanHandler(superchainA.id).then(() => {
+                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                    });
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    alert(error.message);
+                } else {
+                    alert("An unknown error occurred");
+                }
+                setValue(0);
+                setIsInProgress(false);
+            }
+
+        }
+
+        console.log('contract called')
+    }
 
     return (
         <div className="swap-container">
@@ -174,6 +425,7 @@ export const ContentBox = () => {
                                     },
 
                                 }}
+                                disabled={isInProgress || !activeAccount}
                             >
                                 <Option value="0">Devnet 0</Option>
                                 <Option value="1">Devnet 1</Option>
@@ -219,7 +471,7 @@ export const ContentBox = () => {
                             direction="row"
                             justifyContent="left"
                             spacing={1}
-                            sx={{ width: '100%', paddingTop: "10%" }
+                            sx={{ width: '100%' }
                             }>
 
                             <Input
@@ -244,9 +496,14 @@ export const ContentBox = () => {
                     </>
                 }
 
-                <button className="swap-action-button" style={{ marginTop: "10%" }}>
+                <Button
+                    className="swap-action-button"
+                    onClick={() => executeFlashLoan()}
+                    loading={isInProgress}
+                    disabled={!activeAccount}
+                >
                     Execute Strategy
-                </button>
+                </Button>
 
                 <Box sx={{ width: '100%' }}>
                     <LinearProgress
@@ -254,7 +511,7 @@ export const ContentBox = () => {
                         variant="solid"
                         size="sm"
                         thickness={24}
-                        value={Number(10)}
+                        value={Number(0)}
                         sx={{
                             backgroundColor: 'var(--primary-bg)',
                             color: 'var(--linear-bar-color)',
@@ -268,7 +525,7 @@ export const ContentBox = () => {
                             textColor="common.white"
                             sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
                         >
-                            {`${Math.round(Number(50))}%`}
+                            {`${Math.round(Number(value))}%`}
                         </Typography>
                     </LinearProgress>
 

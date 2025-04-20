@@ -9,6 +9,8 @@ import Option from '@mui/joy/Option';
 import Box from '@mui/joy/Box';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Input from '@mui/joy/Input';
+import LinearProgress from '@mui/joy/LinearProgress';
+import Typography from '@mui/joy/Typography';
 
 interface Token {
     symbol: string;
@@ -162,7 +164,33 @@ export const ContentBox = () => {
                 <button className="swap-action-button">
                     Execute Strategy
                 </button>
+
+                <Box sx={{ width: '100%' }}>
+                    <LinearProgress
+                        determinate
+                        variant="outlined"
+                        size="sm"
+                        thickness={24}
+                        value={Number(10)}
+                        sx={{
+                            backgroundColor: 'var(--surface-bg)',
+                            color: 'var(--text-primary)',
+                            textColor: 'var(--text-primary)',
+                            '--LinearProgress-radius': '20px',
+                            '--LinearProgress-thickness': '24px',
+                        }}
+                    >
+                        <Typography
+                            level="body-xs"
+                            textColor="common.white"
+                            sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                        >
+                            {`${Math.round(Number(50))}%`}
+                        </Typography>
+                    </LinearProgress>
+                </Box>
+
             </Stack>
-        </div>
+        </div >
     )
 }

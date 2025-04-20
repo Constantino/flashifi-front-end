@@ -89,7 +89,7 @@ interface FlashLoanEvent {
     userAddress: string;
 }
 
-export const ContentBox = () => {
+export const CrossFlashLoan = () => {
 
     const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
 
@@ -410,7 +410,7 @@ export const ContentBox = () => {
     return (
         <div className="swap-container">
             <div className="swap-header">
-                <h1>Flash Loan Arbitrage</h1>
+                <h1>Super Flash Loan Arbitrage</h1>
                 <div className="swap-settings">
                     <button onClick={handleAdvancedFeatures} className="icon-button">⚙️</button>
                 </div>
@@ -423,7 +423,13 @@ export const ContentBox = () => {
                 spacing={2}
                 sx={{ width: '100%' }}
             >
-
+                <Typography
+                    level="body-sm"
+                    textColor="common.white"
+                    sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                >
+                    Powered by Optimism Superchain Interop
+                </Typography>
                 <Stack
                     direction="row"
                     justifyContent="center"

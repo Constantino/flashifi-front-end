@@ -6,6 +6,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Avatar from '@mui/joy/Avatar';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
+import Tooltip from '@mui/joy/Tooltip';
 
 export const Headers = () => {
 
@@ -31,11 +32,13 @@ export const Headers = () => {
                     <button className={`nav-button ${activeTab === 'simple' ? 'active' : ''}`} onClick={() => setActiveTab('simple')}>
                         Flash Loan Arbitrage
                     </button>
-                    <button className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
-                        Strategies
-                    </button>
+                    <Tooltip title="Coming soon..." variant="solid">
+                        <button disabled className={`nav-button ${activeTab === 'pro' ? 'active' : ''}`} onClick={() => setActiveTab('pro')}>
+                            Strategies
+                        </button>
+                    </Tooltip>
                 </nav>
-
+                {/* 
                 <Select
                     defaultValue='ethereum'
                     placeholder="Select network"
@@ -63,7 +66,7 @@ export const Headers = () => {
                     <Option value="sepolia" >Sepolia</Option>
                     <Option value="alpha0" >Superchain Alpha 0</Option>
                     <Option value="alpha1" >Superchain Alpha 1</Option>
-                </Select>
+                </Select> */}
                 <div className="header-actions">
                     <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
                         {theme === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}

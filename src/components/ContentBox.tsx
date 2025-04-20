@@ -12,6 +12,58 @@ import Input from '@mui/joy/Input';
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
 import ClearIcon from '@mui/icons-material/Clear';
+import { defineChain } from "thirdweb/chains";
+import { useActiveAccount, useActiveWalletConnectionStatus, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
+
+const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
+    {
+        id: 901,
+        name: "Supersim Chain A",
+        rpc: "http://127.0.0.1:9545",
+        nativeCurrency: {
+            name: "Ether",
+            symbol: "ETH",
+            decimals: 18,
+        },
+    }
+) :
+    defineChain(
+        {
+            id: 420120000,
+            name: "interop-alpha-0",
+            rpc: "https://interop-alpha-0.optimism.io",
+            nativeCurrency: {
+                name: "Ether",
+                symbol: "ETH",
+                decimals: 18,
+            },
+        }
+    )
+
+const superchainB = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
+    {
+        id: 902,
+        name: "Supersim Chain B",
+        rpc: "http://127.0.0.1:9546",
+        nativeCurrency: {
+            name: "Ether",
+            symbol: "ETH",
+            decimals: 18,
+        },
+    }
+) :
+    defineChain(
+        {
+            id: 420120001,
+            name: "interop-alpha-1",
+            rpc: "https://interop-alpha-1.optimism.io",
+            nativeCurrency: {
+                name: "Ether",
+                symbol: "ETH",
+                decimals: 18,
+            },
+        }
+    )
 
 interface Token {
     symbol: string;
@@ -44,6 +96,7 @@ export const ContentBox = () => {
     const activeAccount = "";
     const [advancedFeatures, setAdvancedFeatures] = useState(false);
     const [ArbitrageContractAddress, setArbitrageContractAddress] = useState("");
+    const switchChain = useSwitchActiveWalletChain();
 
     const handleChangeChainA = (_: any, value: string | null) => {
         if (value !== null) {
@@ -53,13 +106,13 @@ export const ContentBox = () => {
 
             if (value === '1') {
                 console.log('request change of network')
-                // console.log("switching to: ", superchainB)
-                //switchChain(superchainB)
+                console.log("switching to: ", superchainB)
+                switchChain(superchainB)
             }
             if (value === '0') {
                 console.log('request change of network')
-                // console.log("switching to: ", superchainA)
-                //switchChain(superchainA)
+                console.log("switching to: ", superchainA)
+                switchChain(superchainA)
             }
         }
     };

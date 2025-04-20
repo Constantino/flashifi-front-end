@@ -129,7 +129,7 @@ export const ContentBox = () => {
                 >
                     <Box sx={{ minWidth: 120 }}>
                         <FormControl>
-                            <FormLabel>From</FormLabel>
+                            <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
                             <Select
                                 value={chainFrom}
                                 onChange={handleChangeChainA}
@@ -159,7 +159,7 @@ export const ContentBox = () => {
                     </Box>
                     <Box sx={{ minWidth: 120 }}>
                         <FormControl>
-                            <FormLabel>To</FormLabel>
+                            <FormLabel sx={{ color: 'var(--text-primary)' }}>To</FormLabel>
                             <Select
                                 value={chainTo}
                                 indicator={<KeyboardArrowDown />}

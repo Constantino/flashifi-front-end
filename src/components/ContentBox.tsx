@@ -190,9 +190,94 @@ export const ContentBox = () => {
                             {`${Math.round(Number(50))}%`}
                         </Typography>
                     </LinearProgress>
+
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "10%" }
+                        }>
+
+                        <Typography >
+                            ⚡
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Initiating flash loan
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "2%" }
+                        }>
+
+                        <Typography >
+                            ✅
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Borrowing {1.5} ETH for USDC on Devnet 0
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "2%" }
+                        }>
+
+                        <Typography >
+                            ✅
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Selling {1.5} ETH for USDC on Devnet 0
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "2%" }
+                        }>
+
+                        <Typography >
+                            ✅
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Buying {1.5} ETH for USDC on Devnet 0
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "2%" }
+                        }>
+
+                        <Typography >
+                            ✅
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Repaying loan of {1.5} ETH Devnet 0
+                        </Typography>
+                    </Stack>
+                    <Stack
+                        direction="row"
+                        justifyContent="left"
+                        spacing={2}
+                        sx={{ width: '100%', paddingTop: "2%" }
+                        }>
+
+                        <Typography >
+                            🎉
+                        </Typography>
+                        <Typography sx={{ color: 'var(--text-primary)' }} >
+                            Rewiew your profit of {0.1} ETH on you wallet
+                        </Typography>
+                    </Stack>
                 </Box>
 
-            </Stack>
+            </Stack >
         </div >
     )
 }

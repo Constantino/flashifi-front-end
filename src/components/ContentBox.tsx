@@ -78,19 +78,6 @@ export const ContentBox = () => {
                 spacing={2}
                 sx={{ width: '100%' }}
             >
-                <Input
-                    placeholder="Arbitrage contract address 0x00...000"
-                    sx={{
-                        width: '100%',
-                        backgroundColor: 'var(--surface-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-primary)',
-                        '&:hover': {
-                            borderColor: 'var(--accent-color)',
-                        },
-                    }}
-                />
 
                 <Stack
                     direction="row"
@@ -100,6 +87,7 @@ export const ContentBox = () => {
                     sx={{ width: '100%' }}
                 >
                     <Box sx={{ minWidth: 120 }}>
+
                         <FormControl>
                             <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
                             <Select
@@ -161,7 +149,21 @@ export const ContentBox = () => {
                     </Box>
                 </Stack>
 
-                <button className="swap-action-button">
+                <Input
+                    placeholder="Arbitrage contract address 0x00...000"
+                    sx={{
+                        width: '100%',
+                        backgroundColor: 'var(--surface-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-primary)',
+                        '&:hover': {
+                            borderColor: 'var(--accent-color)',
+                        },
+                    }}
+                />
+
+                <button className="swap-action-button" style={{ marginTop: "10%" }}>
                     Execute Strategy
                 </button>
 

@@ -16,6 +16,7 @@
   --border-color: #2B3139;
   --border-radius: 16px;
   --header-height: 72px;
+  --gray-shadow: #404040;
 }
 
 :root[data-theme="light"] {
@@ -32,6 +33,7 @@
   --border-color: #E2E8F0;
   --border-radius: 16px;
   --header-height: 72px;
+  --gray-shadow: #e6e6e6;
 }
 
 /* Default to dark theme */
@@ -213,6 +215,11 @@
   padding: 8px;
   cursor: pointer;
   font-size: 16px;
+  color: var(--text-primary);
+}
+
+.icon-button:hover {
+  background-color: var(--gray-shadow);
 }
 
 .swap-box {

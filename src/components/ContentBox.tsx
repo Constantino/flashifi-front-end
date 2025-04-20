@@ -11,6 +11,7 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Input from '@mui/joy/Input';
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
+import ClearIcon from '@mui/icons-material/Clear';
 
 interface Token {
     symbol: string;
@@ -41,6 +42,8 @@ export const ContentBox = () => {
     const [chainTo, setChainTo] = useState('1')
     const [isInProgress, setIsInProgress] = useState(false)
     const activeAccount = "";
+    const [advancedFeatures, setAdvancedFeatures] = useState(false);
+    const [ArbitrageContractAddress, setArbitrageContractAddress] = useState("");
 
     const handleChangeChainA = (_: any, value: string | null) => {
         if (value !== null) {
@@ -61,13 +64,20 @@ export const ContentBox = () => {
         }
     };
 
+    const handleAdvancedFeatures = () => {
+        if (advancedFeatures) {
+            setArbitrageContractAddress("")
+        }
+        setAdvancedFeatures(!advancedFeatures)
+    }
+
 
     return (
         <div className="swap-container">
             <div className="swap-header">
                 <h1>Flash Loan Arbitrage</h1>
                 <div className="swap-settings">
-                    <button className="icon-button">⚙️</button>
+                    <button onClick={handleAdvancedFeatures} className="icon-button">⚙️</button>
                 </div>
             </div>
 
@@ -149,19 +159,37 @@ export const ContentBox = () => {
                     </Box>
                 </Stack>
 
-                <Input
-                    placeholder="Arbitrage contract address 0x00...000"
-                    sx={{
-                        width: '100%',
-                        backgroundColor: 'var(--surface-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-primary)',
-                        '&:hover': {
-                            borderColor: 'var(--accent-color)',
-                        },
-                    }}
-                />
+                {
+                    advancedFeatures &&
+                    <>
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={1}
+                            sx={{ width: '100%', paddingTop: "10%" }
+                            }>
+
+                            <Input
+                                placeholder="Arbitrage contract address 0x00...000"
+                                sx={{
+                                    width: '100%',
+                                    backgroundColor: 'var(--surface-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '12px',
+                                    color: 'var(--text-primary)',
+                                    '&:hover': {
+                                        borderColor: 'var(--accent-color)',
+                                    },
+                                }}
+                            />
+                            <button onClick={handleAdvancedFeatures} className="icon-button">
+                                <ClearIcon />
+                            </button>
+                        </Stack>
+
+
+                    </>
+                }
 
                 <button className="swap-action-button" style={{ marginTop: "10%" }}>
                     Execute Strategy

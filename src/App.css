@@ -328,7 +328,7 @@ input::placeholder {
   font-weight: 600;
   cursor: pointer;
   width: 100%;
-  transition: all 0.2s;
+  /* transition: all 0.2s; */
 }
 
 .swap-action-button:focus {
@@ -337,8 +337,8 @@ input::placeholder {
 }
 
 .swap-action-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  opacity: 0.85;
+  /* transform: translateY(-1px); */
 }
 
 .connect-wallet-button {
@@ -359,8 +359,8 @@ input::placeholder {
 }
 
 .connect-wallet-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  opacity: 0.85;
+  /* transform: translateY(-1px); */
 }
 
 /* Add wallet-specific button styles */

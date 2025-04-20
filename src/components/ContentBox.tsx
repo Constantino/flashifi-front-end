@@ -8,6 +8,7 @@ import Select, { selectClasses } from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Box from '@mui/joy/Box';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
+import Input from '@mui/joy/Input';
 
 interface Token {
     symbol: string;
@@ -68,57 +69,26 @@ export const ContentBox = () => {
                 </div>
             </div>
 
-            <div className="swap-box">
-                {/* <div className="input-box">
-                    <div className="input-header">
-                        <span>You Pay</span>
-                        <span className="balance">Balance: 0.0</span>
-                    </div>
-                    <div className="input-content">
-                        <div className="token-select" onClick={() => { }}>
-                            <img src={fromToken.logo} alt={fromToken.symbol} className="token-logo" />
-                            <span>{fromToken.symbol}</span>
-                            <span className="dropdown-arrow">▼</span>
-                        </div>
-                        <input
-                            type="number"
-                            placeholder="0.0"
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <button className="swap-button" onClick={handleSwapTokens}>
-                    ⇅
-                </button>
-
-                <div className="input-box">
-                    <div className="input-header">
-                        <span>You Receive</span>
-                        <span className="balance">Balance: 0.0</span>
-                    </div>
-                    <div className="input-content">
-                        <div className="token-select" onClick={() => { }}>
-                            <img src={toToken.logo} alt={toToken.symbol} className="token-logo" />
-                            <span>{toToken.symbol}</span>
-                            <span className="dropdown-arrow">▼</span>
-                        </div>
-                        <input
-                            type="number"
-                            placeholder="0.0"
-                            disabled
-                            value=""
-                        />
-                    </div>
-                </div>
-
-                <div className="rate-info">
-                    <div className="rate-row">
-                        <span>Rate</span>
-                        <span>1 {fromToken.symbol} = 1,800.54 {toToken.symbol}</span>
-                    </div>
-                </div> */}
+            <Stack
+                direction="column"
+                justifyContent="center"
+                alignItems="center"
+                spacing={2}
+                sx={{ width: '100%' }}
+            >
+                <Input
+                    placeholder="Arbitrage contract address 0x000"
+                    sx={{
+                        width: '100%',
+                        backgroundColor: 'var(--surface-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-primary)',
+                        '&:hover': {
+                            borderColor: 'var(--accent-color)',
+                        },
+                    }}
+                />
 
                 <Stack
                     direction="row"
@@ -192,7 +162,7 @@ export const ContentBox = () => {
                 <button className="swap-action-button">
                     Execute Strategy
                 </button>
-            </div>
+            </Stack>
         </div>
     )
 }

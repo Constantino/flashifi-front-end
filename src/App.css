@@ -268,7 +268,7 @@ input {
   border: none;
   color: var(--text-primary);
   font-size: 24px;
-  text-align: right;
+  text-align: left;
   width: 60%;
   outline: none;
 }

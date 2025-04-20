@@ -7,6 +7,8 @@ import Avatar from '@mui/joy/Avatar';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import Tooltip from '@mui/joy/Tooltip';
+import { ConnectButton, darkTheme, lightTheme } from "thirdweb/react";
+import { createThirdwebClient } from "thirdweb";
 
 export const Headers = () => {
 
@@ -20,6 +22,10 @@ export const Headers = () => {
     const toggleTheme = () => {
         setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
     };
+
+    const client = createThirdwebClient({
+        clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
+    });
 
     return (
         <header className="header">
@@ -71,9 +77,22 @@ export const Headers = () => {
                     <button className="theme-toggle" onClick={toggleTheme} aria-label="Toggle theme">
                         {theme === 'dark' ? <LightModeIcon /> : <DarkModeIcon />}
                     </button>
-                    <button className="connect-wallet-button">
+                    {/* <button className="connect-wallet-button">
                         Connect Wallet
-                    </button>
+                    </button> */}
+                    {/* chains={[superchainA, superchainB]} */}
+                    <ConnectButton theme={theme === "dark" ? darkTheme({
+                        colors: {
+                            primaryButtonBg: 'var(--accent-gradient)',
+                            primaryButtonText: 'var(--text-primary)',
+                        }
+                    }) : lightTheme({
+                        colors: {
+                            primaryButtonBg: 'var(--accent-gradient)',
+                            primaryButtonText: 'white',
+                        }
+                    })
+                    } client={client} />
                 </div>
             </div>
         </header>

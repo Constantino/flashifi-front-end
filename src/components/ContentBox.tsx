@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState, useEffect } from 'react'
 import '../App.css'
 import Stack from '@mui/joy/Stack';
@@ -13,7 +12,7 @@ import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
 import ClearIcon from '@mui/icons-material/Clear';
 import { defineChain } from "thirdweb/chains";
-import { useActiveAccount, useActiveWalletConnectionStatus, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
+import { useActiveAccount, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
 import Button from '@mui/joy/Button';
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { ethers } from 'ethers';
@@ -70,33 +69,40 @@ const superchainB = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
         }
     )
 
-interface Token {
-    symbol: string;
-    name: string;
-    logo?: string;
-}
+// interface Token {
+//     symbol: string;
+//     name: string;
+//     logo?: string;
+// }
 
-const commonTokens: Token[] = [
-    { symbol: 'ETH', name: 'Ethereum', logo: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png' },
-    { symbol: 'USDT', name: 'Tether USD', logo: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png' },
-    { symbol: 'USDC', name: 'USD Coin', logo: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png' },
-    { symbol: 'DAI', name: 'Dai Stablecoin', logo: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png' },
-]
+// const commonTokens: Token[] = [
+//     { symbol: 'ETH', name: 'Ethereum', logo: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png' },
+//     { symbol: 'USDT', name: 'Tether USD', logo: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png' },
+//     { symbol: 'USDC', name: 'USD Coin', logo: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png' },
+//     { symbol: 'DAI', name: 'Dai Stablecoin', logo: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png' },
+// ]
+
+interface FlashLoanEvent {
+    flashLoanId: string;
+    amount: ethers.BigNumber;
+    chainId: ethers.BigNumber;
+    userAddress: string;
+}
 
 export const ContentBox = () => {
 
     const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
 
-    const [fromToken, setFromToken] = useState<Token>(commonTokens[0])
-    const [toToken, setToToken] = useState<Token>(commonTokens[1])
-    const [amount, setAmount] = useState<string>('')
+    // const [fromToken, setFromToken] = useState<Token>(commonTokens[0])
+    // const [toToken, setToToken] = useState<Token>(commonTokens[1])
+    // const [amount, setAmount] = useState<string>('')
     const [value, setValue] = useState(0)
 
-    const handleSwapTokens = () => {
-        const temp = fromToken
-        setFromToken(toToken)
-        setToToken(temp)
-    }
+    // const handleSwapTokens = () => {
+    //     const temp = fromToken
+    //     setFromToken(toToken)
+    //     setToToken(temp)
+    // }
 
     const [chainFrom, setChainFrom] = useState('0')
     const [chainTo, setChainTo] = useState('1')
@@ -109,19 +115,42 @@ export const ContentBox = () => {
     const address = activeAccount?.address;
     const chainInUse = useActiveWalletChain()
 
-    const [loanAmountReceived, setLoanAmountReceived] = useState({})
-    const [ethSold, setEthSold] = useState({})
-    const [ethBought, setEthBought] = useState({})
-    const [loanAmountRepaid, setLoanAmountRepaid] = useState({})
-    const [profitSent, setProfitSent] = useState({})
+    const [loanAmountReceived, setLoanAmountReceived] = useState<FlashLoanEvent>({
+        flashLoanId: '',
+        amount: ethers.BigNumber.from('0'),
+        chainId: ethers.BigNumber.from('0'),
+        userAddress: ''
+    });
+    const [ethSold, setEthSold] = useState<FlashLoanEvent>({
+        flashLoanId: '',
+        amount: ethers.BigNumber.from('0'),
+        chainId: ethers.BigNumber.from('0'),
+        userAddress: ''
+    });
+    const [ethBought, setEthBought] = useState<FlashLoanEvent>({
+        flashLoanId: '',
+        amount: ethers.BigNumber.from('0'),
+        chainId: ethers.BigNumber.from('0'),
+        userAddress: ''
+    });
+    const [loanAmountRepaid, setLoanAmountRepaid] = useState<FlashLoanEvent>({
+        flashLoanId: '',
+        amount: ethers.BigNumber.from('0'),
+        chainId: ethers.BigNumber.from('0'),
+        userAddress: ''
+    });
+    const [profitSent, setProfitSent] = useState<FlashLoanEvent>({
+        flashLoanId: '',
+        amount: ethers.BigNumber.from('0'),
+        chainId: ethers.BigNumber.from('0'),
+        userAddress: ''
+    });
 
     const [isLoanReceived, setIsLoanReceived] = useState(false)
     const [isEthSold, setIsEthSold] = useState(false)
     const [isEthBought, setIsEthBought] = useState(false)
     const [isLoanRepaid, setIsLoanRepaid] = useState(false)
     const [isProfitSent, setIsProfitSent] = useState(false)
-
-    const [_flashLoanId, set_flashLoanId] = useState(0)
 
     const client = createThirdwebClient({
         clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
@@ -162,6 +191,7 @@ export const ContentBox = () => {
         setIsEthBought(false)
         setIsLoanRepaid(false)
         setIsProfitSent(false)
+        chainFrom == '0' ? switchChain(superchainA) : switchChain(superchainB)
 
     }, [address])
 
@@ -237,6 +267,7 @@ export const ContentBox = () => {
             const checksumAddress = ethers.utils.getAddress(address)
             const icap = ethers.utils.getIcapAddress(address);
             console.log("checksum address: ", checksumAddress);
+            console.log("icap address: ", icap);
             return true;
         } catch (error) {
             console.log("error: ", error)
@@ -476,6 +507,8 @@ export const ContentBox = () => {
 
                             <Input
                                 placeholder="Arbitrage contract address 0x00...000"
+                                value={arbitrageContractAddress}
+                                onChange={(e) => setArbitrageContractAddress(e.target.value)}
                                 sx={{
                                     width: '100%',
                                     backgroundColor: 'var(--surface-bg)',
@@ -511,7 +544,7 @@ export const ContentBox = () => {
                         variant="solid"
                         size="sm"
                         thickness={24}
-                        value={Number(0)}
+                        value={Number(value)}
                         sx={{
                             backgroundColor: 'var(--primary-bg)',
                             color: 'var(--linear-bar-color)',
@@ -528,91 +561,109 @@ export const ContentBox = () => {
                             {`${Math.round(Number(value))}%`}
                         </Typography>
                     </LinearProgress>
+                    {
+                        value >= 10 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "10%" }
+                            }>
 
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "10%" }
-                        }>
+                            <Typography >
+                                ⚡
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Initiating flash loan
+                            </Typography>
+                        </Stack>
 
-                        <Typography >
-                            ⚡
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Initiating flash loan
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "2%" }
-                        }>
+                    }
+                    {
+                        value >= 100 / 5 * 1 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "2%" }
+                            }>
 
-                        <Typography >
-                            ✅
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Borrowing {1.5} ETH for USDC on Devnet 0
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "2%" }
-                        }>
+                            <Typography >
+                                ✅
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH for USDC on {loanAmountReceived.chainId.toNumber()}
+                            </Typography>
+                        </Stack>
+                    }
+                    {
+                        value >= 100 / 5 * 2 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "2%" }
+                            }>
 
-                        <Typography >
-                            ✅
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Selling {1.5} ETH for USDC on Devnet 0
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "2%" }
-                        }>
+                            <Typography >
+                                ✅
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Selling {ethers.utils.formatEther(ethSold.amount)} ETH for USDC on {ethSold.chainId.toNumber()}
+                            </Typography>
+                        </Stack>
+                    }
+                    {
+                        value >= 100 / 5 * 3 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "2%" }
+                            }>
 
-                        <Typography >
-                            ✅
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Buying {1.5} ETH for USDC on Devnet 0
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "2%" }
-                        }>
+                            <Typography >
+                                ✅
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Buying {ethers.utils.formatEther(ethBought.amount)} ETH for USDC on {ethBought.chainId.toNumber()}
+                            </Typography>
+                        </Stack>
+                    }
+                    {
+                        value >= 100 / 5 * 4 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "2%" }
+                            }>
 
-                        <Typography >
-                            ✅
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Repaying loan of {1.5} ETH Devnet 0
-                        </Typography>
-                    </Stack>
-                    <Stack
-                        direction="row"
-                        justifyContent="left"
-                        spacing={2}
-                        sx={{ width: '100%', paddingTop: "2%" }
-                        }>
+                            <Typography >
+                                ✅
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Repaying loan of {ethers.utils.formatEther(loanAmountRepaid.amount)} ETH on Chain {loanAmountRepaid.chainId.toNumber()}
+                            </Typography>
+                        </Stack>
+                    }
+                    {
+                        value == 100 &&
+                        <Stack
+                            direction="row"
+                            justifyContent="left"
+                            spacing={2}
+                            sx={{ width: '100%', paddingTop: "2%" }
+                            }>
 
-                        <Typography >
-                            🎉
-                        </Typography>
-                        <Typography sx={{ color: 'var(--text-primary)' }} >
-                            Rewiew your profit of {0.1} ETH on you wallet
-                        </Typography>
-                    </Stack>
+                            <Typography >
+                                🎉
+                            </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+                                Review your profit of {ethers.utils.formatEther(profitSent.amount)} ETH on your wallet account
+                            </Typography>
+                        </Stack>
+                    }
                 </Box>
 
             </Stack >

@@ -3,6 +3,7 @@
   --secondary-bg: #181c24;
   --surface-bg: #1A1A1A;
   --accent-color: #40E0E3;
+  --linear-bar-color: #8fecef;
   --accent-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --cyan-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --bg-gradient: radial-gradient(circle at 0% 0%,
@@ -22,8 +23,9 @@
   --secondary-bg: #FFFFFF;
   --surface-bg: #F8FAFC;
   --accent-color: #0EA5E9;
-  --accent-gradient: #0EA5E9;
-  --cyan-gradient: #0EA5E9;
+  --linear-bar-color: #20d9df;
+  --accent-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
+  --cyan-gradient: linear-gradient(45deg, #2563EB, #22A7BE);
   --bg-gradient: none;
   --text-primary: #0F172A;
   --text-secondary: #64748B;

@@ -79,7 +79,7 @@ export const ContentBox = () => {
                 sx={{ width: '100%' }}
             >
                 <Input
-                    placeholder="Arbitrage contract address 0x000"
+                    placeholder="Arbitrage contract address 0x00...000"
                     sx={{
                         width: '100%',
                         backgroundColor: 'var(--surface-bg)',
@@ -168,13 +168,13 @@ export const ContentBox = () => {
                 <Box sx={{ width: '100%' }}>
                     <LinearProgress
                         determinate
-                        variant="outlined"
+                        variant="solid"
                         size="sm"
                         thickness={24}
                         value={Number(10)}
                         sx={{
-                            backgroundColor: 'var(--surface-bg)',
-                            color: 'var(--text-primary)',
+                            backgroundColor: 'var(--primary-bg)',
+                            color: 'var(--linear-bar-color)',
                             textColor: 'var(--text-primary)',
                             '--LinearProgress-radius': '20px',
                             '--LinearProgress-thickness': '24px',

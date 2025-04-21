@@ -9,6 +9,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import Tooltip from '@mui/joy/Tooltip';
 import { ConnectButton, darkTheme, lightTheme } from "thirdweb/react";
 import { createThirdwebClient } from "thirdweb";
+import { NavLink } from "react-router-dom";
 
 export const Headers = () => {
 
@@ -35,12 +36,16 @@ export const Headers = () => {
                     <span className="logo-text">FlashiFi</span>
                 </div>
                 <nav className="main-nav">
-                    <button className={`nav-button ${activeTab === 'super' ? 'active' : ''}`} onClick={() => setActiveTab('super')}>
-                        ⭐ Super Flash Loan
-                    </button>
-                    <button className={`nav-button ${activeTab === 'single' ? 'active' : ''}`} onClick={() => setActiveTab('single')}>
-                        🔗 Single Flash Loan
-                    </button>
+                    <NavLink key={"super-flash-loan"} to={"super-flash-loan"}>
+                        <button className={`nav-button ${activeTab === 'super' ? 'active' : ''}`} onClick={() => setActiveTab('super')}>
+                            ⭐ Super Flash Loan
+                        </button>
+                    </NavLink>
+                    <NavLink key={"single-flash-loan"} to={"single-flash-loan"}>
+                        <button className={`nav-button ${activeTab === 'single' ? 'active' : ''}`} onClick={() => setActiveTab('single')}>
+                            🔗 Single Flash Loan
+                        </button>
+                    </NavLink>
                     <Tooltip title="Coming soon..." variant="solid">
                         <button disabled className={`nav-button ${activeTab === 'strategies' ? 'active' : ''}`} onClick={() => setActiveTab('strategies')}>
                             🧠 Strategies

@@ -313,10 +313,11 @@ input::placeholder {
 }
 
 .rate-info {
-  background-color: var(--surface-bg);
+  background-color: var(--primary-bg);
   border-radius: var(--border-radius);
   padding: 16px;
   font-size: 14px;
+  width: 100%;
 }
 
 .rate-row {

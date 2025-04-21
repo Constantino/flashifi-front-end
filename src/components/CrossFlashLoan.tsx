@@ -598,7 +598,7 @@ export const CrossFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH for USDC on {loanAmountReceived.chainId.toNumber()}
+                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH on {loanAmountReceived.chainId.toNumber()}
                             </Typography>
                         </Stack>
                     }

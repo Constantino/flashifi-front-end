@@ -411,9 +411,6 @@ export const SingleFlashLoan = () => {
         <div className="swap-container">
             <div className="swap-header">
                 <h1>Single Flash Loan Arbitrage</h1>
-                <div className="swap-settings">
-                    <button onClick={handleAdvancedFeatures} className="icon-button">⚙️</button>
-                </div>
             </div>
 
             <Stack
@@ -423,114 +420,77 @@ export const SingleFlashLoan = () => {
                 spacing={2}
                 sx={{ width: '100%' }}
             >
-                <Stack
-                    direction="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ width: '100%' }}
-                >
-                    <Box sx={{ minWidth: 120 }}>
 
-                        <FormControl>
-                            <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
-                            <Select
-                                value={chainFrom}
-                                onChange={handleChangeChainA}
-                                indicator={<KeyboardArrowDown />}
-                                sx={{
-                                    backgroundColor: 'var(--surface-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                    color: 'var(--text-primary)',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--surface-bg)',
-                                        borderColor: 'var(--accent-color)',
-                                    },
-                                    [`& .${selectClasses.indicator}`]: {
-                                        transition: '0.2s',
-                                        [`&.${selectClasses.expanded}`]: {
-                                            transform: 'rotate(-180deg)',
-                                        },
-                                    },
+                <Input
+                    placeholder="Flash Loan handler contract address 0x00...000"
+                    value={arbitrageContractAddress}
+                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                    sx={{
+                        width: '100%',
+                        backgroundColor: 'var(--surface-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-primary)',
+                        '&:hover': {
+                            borderColor: 'var(--accent-color)',
+                        },
+                    }}
+                />
+                <Input
+                    placeholder="Arbitrage contract address 0x00...000"
+                    value={arbitrageContractAddress}
+                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                    sx={{
+                        width: '100%',
+                        backgroundColor: 'var(--surface-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-primary)',
+                        '&:hover': {
+                            borderColor: 'var(--accent-color)',
+                        },
+                    }}
+                />
+                <Input
+                    placeholder="Amount to borrow"
+                    value={arbitrageContractAddress}
+                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                    sx={{
+                        width: '100%',
+                        backgroundColor: 'var(--surface-bg)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '12px',
+                        color: 'var(--text-primary)',
+                        '&:hover': {
+                            borderColor: 'var(--accent-color)',
+                        },
+                    }}
+                />
+                <div className="rate-info">
+                    <div className="rate-row">
+                        <Typography
+                            level="body-xs"
+                            textColor="common.white"
+                            sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                        >
+                            Fee: %
+                        </Typography>
+                    </div>
+                    <div className="rate-row">
+                        <Typography
+                            level="body-xs"
+                            textColor="common.white"
+                            sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                        >
+                            Fee: ETH
+                        </Typography>
+                    </div>
+                </div>
 
-                                }}
-                                disabled={isInProgress || !activeAccount}
-                            >
-                                <Option value="0">Devnet 0</Option>
-                                <Option value="1">Devnet 1</Option>
-                            </Select>
-                        </FormControl>
-                    </Box>
-                    <Box sx={{ minWidth: 120 }}>
-                        <FormControl>
-                            <FormLabel sx={{ color: 'var(--text-primary)' }}>To</FormLabel>
-                            <Select
-                                value={chainTo}
-                                indicator={<KeyboardArrowDown />}
-                                sx={{
-                                    backgroundColor: 'var(--surface-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                    color: 'var(--text-primary)',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--surface-bg)',
-                                        borderColor: 'var(--accent-color)',
-                                    },
-                                    [`& .${selectClasses.indicator}`]: {
-                                        transition: '0.2s',
-                                        [`&.${selectClasses.expanded}`]: {
-                                            transform: 'rotate(-180deg)',
-                                        },
-                                    },
-
-                                }}
-                                disabled
-                            >
-                                <Option value="0">Devnet 0</Option>
-                                <Option value="1">Devnet 1</Option>
-                            </Select>
-                        </FormControl>
-                    </Box>
-                </Stack>
-
-                {
-                    advancedFeatures &&
-                    <>
-                        <Stack
-                            direction="row"
-                            justifyContent="left"
-                            spacing={1}
-                            sx={{ width: '100%' }
-                            }>
-
-                            <Input
-                                placeholder="Arbitrage contract address 0x00...000"
-                                value={arbitrageContractAddress}
-                                onChange={(e) => setArbitrageContractAddress(e.target.value)}
-                                sx={{
-                                    width: '100%',
-                                    backgroundColor: 'var(--surface-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                    color: 'var(--text-primary)',
-                                    '&:hover': {
-                                        borderColor: 'var(--accent-color)',
-                                    },
-                                }}
-                            />
-                            <button onClick={handleAdvancedFeatures} className="icon-button">
-                                <ClearIcon />
-                            </button>
-                        </Stack>
-
-
-                    </>
-                }
 
                 <Button
                     className="swap-action-button"
-                    onClick={() => executeFlashLoan()}
+                    onClick={() => { alert("execute flash loan"); setValue(100) }}
                     loading={isInProgress}
                     disabled={!activeAccount}
                 >
@@ -579,7 +539,7 @@ export const SingleFlashLoan = () => {
 
                     }
                     {
-                        value >= 100 / 5 * 1 &&
+                        value >= 100 / 4 * 1 &&
                         <Stack
                             direction="row"
                             justifyContent="left"
@@ -591,12 +551,12 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH for USDC on {loanAmountReceived.chainId.toNumber()}
+                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH
                             </Typography>
                         </Stack>
                     }
                     {
-                        value >= 100 / 5 * 2 &&
+                        value >= 100 / 4 * 2 &&
                         <Stack
                             direction="row"
                             justifyContent="left"
@@ -608,12 +568,12 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Selling {ethers.utils.formatEther(ethSold.amount)} ETH for USDC on {ethSold.chainId.toNumber()}
+                                Executing Arbitrage logic
                             </Typography>
                         </Stack>
                     }
                     {
-                        value >= 100 / 5 * 3 &&
+                        value >= 100 / 4 * 3 &&
                         <Stack
                             direction="row"
                             justifyContent="left"
@@ -625,24 +585,7 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Buying {ethers.utils.formatEther(ethBought.amount)} ETH for USDC on {ethBought.chainId.toNumber()}
-                            </Typography>
-                        </Stack>
-                    }
-                    {
-                        value >= 100 / 5 * 4 &&
-                        <Stack
-                            direction="row"
-                            justifyContent="left"
-                            spacing={2}
-                            sx={{ width: '100%', paddingTop: "2%" }
-                            }>
-
-                            <Typography >
-                                ✅
-                            </Typography>
-                            <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Repaying loan of {ethers.utils.formatEther(loanAmountRepaid.amount)} ETH on Chain {loanAmountRepaid.chainId.toNumber()}
+                                Repaying loan of {ethers.utils.formatEther(loanAmountRepaid.amount)} ETH
                             </Typography>
                         </Stack>
                     }

@@ -18,6 +18,7 @@ import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { ethers } from 'ethers';
 import { abi as tokenAbi } from '../assets/tokenAbi.json';
 import { createThirdwebClient } from "thirdweb";
+import OPLogo from '../assets/OPLogo.svg';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -423,13 +424,23 @@ export const CrossFlashLoan = () => {
                 spacing={2}
                 sx={{ width: '100%' }}
             >
-                <Typography
-                    level="body-sm"
-                    textColor="common.white"
-                    sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                <Stack
+                    direction="row"
+                    justifyContent="center"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ width: '100%' }}
                 >
-                    Powered by Optimism Superchain Interop
-                </Typography>
+                    <Typography
+                        level="body-sm"
+                        textColor="common.white"
+                        sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
+                    >
+
+                        Powered by Optimism Superchain Interop
+                    </Typography>
+                    <img src={OPLogo} />
+                </Stack>
                 <Stack
                     direction="row"
                     justifyContent="center"

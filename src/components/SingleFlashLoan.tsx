@@ -11,13 +11,16 @@ import Input from '@mui/joy/Input';
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
 import ClearIcon from '@mui/icons-material/Clear';
-import { defineChain } from "thirdweb/chains";
+import { defineChain, sepolia } from "thirdweb/chains";
 import { useActiveAccount, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
 import Button from '@mui/joy/Button';
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { ethers } from 'ethers';
 import { abi as tokenAbi } from '../assets/tokenAbi.json';
+import { SimpleFlashLoanABI } from '../assets/SimpleFlashLoan.abi.json';
 import { createThirdwebClient } from "thirdweb";
+import Tooltip from '@mui/joy/Tooltip';
+import FormHelperText from '@mui/joy/FormHelperText';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -93,167 +96,52 @@ export const SingleFlashLoan = () => {
 
     const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
 
-    // const [fromToken, setFromToken] = useState<Token>(commonTokens[0])
-    // const [toToken, setToToken] = useState<Token>(commonTokens[1])
-    // const [amount, setAmount] = useState<string>('')
     const [value, setValue] = useState(0)
-
-    // const handleSwapTokens = () => {
-    //     const temp = fromToken
-    //     setFromToken(toToken)
-    //     setToToken(temp)
-    // }
-
-    const [chainFrom, setChainFrom] = useState('0')
-    const [chainTo, setChainTo] = useState('1')
     const [isInProgress, setIsInProgress] = useState(false)
-    const [advancedFeatures, setAdvancedFeatures] = useState(false);
+    const [flashLoanContractHandlerAddress, setFlashLoanContractHandlerAddress] = useState("0xe0501A11247f59F5b647E29F037E48F2ff3F9383");
+    const [tokenContractAddress, setTokenContractAddress] = useState("0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8");
+    const [amountToBorrow, setAmountToBorrow] = useState(0);
+    const feePercentage = 0.09;
+    const [amountOfFee, setAmountOfFee] = useState(0);
     const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
+
+    const [amountError, setAmountError] = useState<string>('');
+    const [tokenAddressError, setTokenAddressError] = useState<string>('');
+    const [flashLoanContractAddressError, setFlashLoanContractAddressError] = useState<string>('');
+    const [arbitrageContractAddressError, setArbitrageContractAddressError] = useState<string>('');
+
 
     const switchChain = useSwitchActiveWalletChain();
     const activeAccount = useActiveAccount();
     const address = activeAccount?.address;
     const chainInUse = useActiveWalletChain()
 
-    const [loanAmountReceived, setLoanAmountReceived] = useState<FlashLoanEvent>({
-        flashLoanId: '',
-        amount: ethers.BigNumber.from('0'),
-        chainId: ethers.BigNumber.from('0'),
-        userAddress: ''
-    });
-    const [ethSold, setEthSold] = useState<FlashLoanEvent>({
-        flashLoanId: '',
-        amount: ethers.BigNumber.from('0'),
-        chainId: ethers.BigNumber.from('0'),
-        userAddress: ''
-    });
-    const [ethBought, setEthBought] = useState<FlashLoanEvent>({
-        flashLoanId: '',
-        amount: ethers.BigNumber.from('0'),
-        chainId: ethers.BigNumber.from('0'),
-        userAddress: ''
-    });
-    const [loanAmountRepaid, setLoanAmountRepaid] = useState<FlashLoanEvent>({
-        flashLoanId: '',
-        amount: ethers.BigNumber.from('0'),
-        chainId: ethers.BigNumber.from('0'),
-        userAddress: ''
-    });
-    const [profitSent, setProfitSent] = useState<FlashLoanEvent>({
-        flashLoanId: '',
-        amount: ethers.BigNumber.from('0'),
-        chainId: ethers.BigNumber.from('0'),
-        userAddress: ''
-    });
-
-    const [isLoanReceived, setIsLoanReceived] = useState(false)
-    const [isEthSold, setIsEthSold] = useState(false)
-    const [isEthBought, setIsEthBought] = useState(false)
-    const [isLoanRepaid, setIsLoanRepaid] = useState(false)
-    const [isProfitSent, setIsProfitSent] = useState(false)
-
     const client = createThirdwebClient({
         clientId: import.meta.env.VITE_THIRDWEB_CLIENT_ID,
     });
-
-    const handleChangeChainA = (_: any, value: string | null) => {
-        if (value !== null) {
-            console.log("chain dropdown1: ", value)
-            setChainTo(value === '0' ? '1' : '0')
-            setChainFrom(value)
-
-            if (value === '1') {
-                console.log('request change of network')
-                console.log("switching to: ", superchainB)
-                switchChain(superchainB)
-            }
-            if (value === '0') {
-                console.log('request change of network')
-                console.log("switching to: ", superchainA)
-                switchChain(superchainA)
-            }
-        }
-    };
-
-    const handleAdvancedFeatures = () => {
-        if (advancedFeatures) {
-            setArbitrageContractAddress("")
-        }
-        setAdvancedFeatures(!advancedFeatures)
-    }
 
     useEffect(() => {
 
         setIsInProgress(false)
         setValue(0)
-        setIsLoanReceived(false)
-        setIsEthSold(false)
-        setIsEthBought(false)
-        setIsLoanRepaid(false)
-        setIsProfitSent(false)
-        chainFrom == '0' ? switchChain(superchainA) : switchChain(superchainB)
+        // chainFrom == '0' ? switchChain(superchainA) : switchChain(superchainB)
+        switchChain(sepolia);
 
     }, [address])
+
+    useEffect(() => {
+
+        setAmountOfFee(amountToBorrow * feePercentage);
+
+    }, [amountToBorrow])
 
     const executeFlashLoan = async () => {
 
         setValue(0);
-        setIsLoanReceived(false)
-        setIsEthSold(false)
-        setIsEthBought(false)
-        setIsLoanRepaid(false)
-        setIsProfitSent(false)
         setIsInProgress(true)
 
-        await callContract()
+        await callSimpleFlashLoan()
     }
-
-    useEffect(() => {
-        console.log("useEffect loanAmountReceived called")
-        console.log("prev progress: ", value)
-        if (isLoanReceived && !isEthSold && !isEthBought && !isLoanRepaid && !isProfitSent) {
-            console.log("new progress: ", 20)
-            setValue(20)
-        }
-    }, [isLoanReceived])
-
-    useEffect(() => {
-        console.log("useEffect ethSold called")
-        console.log("prev progress: ", value)
-        if (isEthSold && !isEthBought && !isLoanRepaid && !isProfitSent) {
-            console.log("new progress: ", 40)
-            setValue(40)
-        }
-    }, [isEthSold])
-
-    useEffect(() => {
-        console.log("useEffect ethBought called")
-        console.log("prev progress: ", value)
-        if (isEthBought && !isLoanRepaid && !isProfitSent) {
-            console.log("new progress: ", 60)
-            setValue(60)
-        }
-    }, [isEthBought])
-
-    useEffect(() => {
-        console.log("useEffect loanAmountRepaid called")
-        console.log("prev progress: ", value)
-        if (isLoanRepaid && !isProfitSent) {
-            console.log("new progress: ", 80)
-            setValue(80)
-        }
-    }, [isLoanRepaid])
-
-    useEffect(() => {
-        console.log("useEffect profitSent called")
-        console.log("useEffect profitSent userAddress: ", profitSent)
-        console.log("prev progress: ", value)
-        if (isProfitSent) {
-            setValue(100)
-            console.log("new progress: ", 100)
-            setIsInProgress(false)
-        }
-    }, [isProfitSent])
 
 
     const IsAddressChecksumGood = (address: string) => {
@@ -286,126 +174,58 @@ export const SingleFlashLoan = () => {
         return signer;
     }
 
-    const suscribeToChainEvents = (connectedContractA: any, connectedContractB: any) => {
-        let flashLoanRecievedFilter = connectedContractA.filters.flashLoanRecieved(null, null, null, address);
-
-        connectedContractA.on(flashLoanRecievedFilter, (flashLoanId: any, loanAmountRecieved: any, chainId: any, userAddress: any) => {
-
-            setLoanAmountReceived({ flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
-            setIsLoanReceived(true)
-            console.log('loan amount received: ', { flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
-
-        })
-
-        let soldEthFilter = connectedContractB.filters.soldEth(null, null, null, address);
-        connectedContractB.on(soldEthFilter, (flashLoanId: any, amount: any, chainId: any, userAddress: any) => {
-            setEthSold({ flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress })
-            setIsEthSold(true)
-            console.log('sold eth: ', { flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress });
-        })
-
-
-        let boughtEthFilter = connectedContractB.filters.boughtEth(null, null, null, address);
-        connectedContractB.on(boughtEthFilter, (flashLoanId: any, amount: any, chainId: any, userAddress: any) => {
-            setEthBought({ flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress })
-            setIsEthBought(true)
-            console.log('bought eth: ', { flashLoanId: flashLoanId, amount: amount, chainId: chainId, userAddress: userAddress });
-        })
-
-
-        let flashLoanRepayedFilter = connectedContractA.filters.flashLoanRepayed(null, null, null, address);
-        connectedContractA.on(flashLoanRepayedFilter, (flashLoanId: any, loanAmount: any, chainId: any, userAddress: any) => {
-            setLoanAmountRepaid({ flashLoanId: flashLoanId, amount: loanAmount, chainId: chainId, userAddress: userAddress })
-            setIsLoanRepaid(true)
-            console.log('Flash loan repaid: ', { flashLoanId: flashLoanId, amount: loanAmount, chainId: chainId, userAddress: userAddress });
-        })
-
-        let sentProfitFilter = connectedContractA.filters.sentProfit(null, null, null, address);
-        connectedContractA.on(sentProfitFilter, (flashLoanId: any, profit: any, chainId: any, userAddress: any) => {
-            setProfitSent({ flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress })
-            setIsProfitSent(true)
-            console.log('profit sent: ', { flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress });
-        })
+    const callSimpleFlashLoan = async () => {
+        // SimpleFlashLoanABI
+        const signer = await getSigner(sepolia);
+        const connectedContract = new ethers.Contract(contractHandlerAddress, tokenAbi, signer);
+        await connectedContract.fn_RequestFlashLoan(
+            "token",
+            "amount"
+        )
     }
 
-    const callContract = async () => {
-
-        let willUseCustomArbitrageContract = false;
-        if (arbitrageContractAddress != "") {
-            console.log("arbitrageContractAddress: ", arbitrageContractAddress)
-            willUseCustomArbitrageContract = IsAddressChecksumGood(arbitrageContractAddress)
-            if (!willUseCustomArbitrageContract) {
-                alert("Invalid address for arbitrage contract")
-                setValue(0);
-                setIsInProgress(false);
-                return;
-            }
-        }
-
-        const signerA = await getSigner(superchainA);
-        const signerB = await getSigner(superchainB);
-
-        console.log("contract handler address: ", contractHandlerAddress)
-
-        const connectedContractA = new ethers.Contract(contractHandlerAddress, tokenAbi, signerA);
-        const connectedContractB = new ethers.Contract(contractHandlerAddress, tokenAbi, signerB);
-
-
-        console.log(connectedContractA)
-        console.log(connectedContractB)
-
-        setValue(0);
-
-        if (!chainInUse) {
-            throw new Error("chainInUse is undefined");
-        }
-
-        if (chainInUse.id == superchainA.id) {
-            try {
-                if (willUseCustomArbitrageContract) {
-                    await connectedContractA.callFlashLoanHandler(superchainB.id, arbitrageContractAddress).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
-                } else {
-                    await connectedContractA.callFlashLoanHandler(superchainB.id).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
-                }
-            } catch (error) {
-                if (error instanceof Error) {
-                    alert(error.message);
-                } else {
-                    alert("An unknown error occurred");
-                }
-                setValue(0);
-                setIsInProgress(false);
-            }
-
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        let isThereAnError = false;
+        if (flashLoanContractHandlerAddress === "") {
+            setFlashLoanContractAddressError('Please enter a valid flash loan handler address');
+            isThereAnError = true;
         } else {
-            try {
-                if (willUseCustomArbitrageContract) {
-                    await connectedContractB.callFlashLoanHandler(superchainA.id, arbitrageContractAddress).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
-                } else {
-                    await connectedContractB.callFlashLoanHandler(superchainA.id).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
-                }
-            } catch (error) {
-                if (error instanceof Error) {
-                    alert(error.message);
-                } else {
-                    alert("An unknown error occurred");
-                }
-                setValue(0);
-                setIsInProgress(false);
+            if (!IsAddressChecksumGood(flashLoanContractHandlerAddress)) {
+                setFlashLoanContractAddressError('Please enter a valid flash loan handler address');
+                isThereAnError = true;
             }
+        }
+        // if (tokenContractAddress === "") {
+        //     setTokenAddressError('Please enter a valid token contract address');
+        //     isThereAnError = true;
+        // } else {
+        //     if (!IsAddressChecksumGood(tokenContractAddress)) {
+        //         setTokenAddressError('Please enter a valid token contract address');
+        //         isThereAnError = true;
+        //     }
+        // }
+        if (!amountToBorrow || amountToBorrow <= 0) {
+            setAmountError('Please enter a valid amount to borrow');
+            isThereAnError = true;
+        }
+        // if (arbitrageContractAddress === "") {
+        //     setArbitrageContractAddressError('Please enter a valid arbitrage contract address');
+        //     isThereAnError = true;
+        // } else {
+        //     if (!IsAddressChecksumGood(arbitrageContractAddress)) {
+        //         setArbitrageContractAddressError('Please enter a valid arbitrage contract address');
+        //         isThereAnError = true;
+        //     }
+        // }
 
+        if (isThereAnError) {
+            return;
         }
 
-        console.log('contract called')
-    }
+        alert("execute flash loan");
+        setValue(100);
+    };
 
     return (
         <div className="swap-container">
@@ -421,51 +241,143 @@ export const SingleFlashLoan = () => {
                 sx={{ width: '100%' }}
             >
 
-                <Input
-                    placeholder="Flash Loan handler contract address 0x00...000"
-                    value={arbitrageContractAddress}
-                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                <FormControl
+                    error={!!amountError}
                     sx={{
                         width: '100%',
-                        backgroundColor: 'var(--surface-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-primary)',
-                        '&:hover': {
-                            borderColor: 'var(--accent-color)',
-                        },
                     }}
-                />
-                <Input
-                    placeholder="Arbitrage contract address 0x00...000"
-                    value={arbitrageContractAddress}
-                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                >
+                    <FormLabel
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
+                    >
+                        Flash Loan handler contract address
+                    </FormLabel>
+                    <Tooltip title="This is the contract that will handle the loan, arbitrage logic and profit." variant="solid">
+                        <Input
+                            error={!!amountError}
+                            required
+                            placeholder="0x00...000"
+                            value={flashLoanContractHandlerAddress}
+                            onChange={(e) => setFlashLoanContractHandlerAddress(e.target.value)}
+                            sx={{
+                                width: '100%',
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    borderColor: 'var(--accent-color)',
+                                },
+                            }}
+                        />
+                    </Tooltip>
+                    {flashLoanContractAddressError && (
+                        <FormHelperText sx={{ color: 'var(--accent-color)' }}>
+                            {flashLoanContractAddressError}
+                        </FormHelperText>
+                    )}
+                </FormControl>
+                <FormControl
                     sx={{
                         width: '100%',
-                        backgroundColor: 'var(--surface-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-primary)',
-                        '&:hover': {
-                            borderColor: 'var(--accent-color)',
-                        },
                     }}
-                />
-                <Input
-                    placeholder="Amount to borrow"
-                    value={arbitrageContractAddress}
-                    onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                >
+                    <FormLabel
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
+                    >
+                        Token to borrow
+                    </FormLabel>
+                    <Tooltip title="USDC contract address. More coming soon." variant="solid">
+                        <span style={{ width: '100%' }}>
+                            <Input
+                                placeholder="Token contract address 0x00...000"
+                                value={tokenContractAddress}
+                                onChange={(e) => {
+                                    setTokenContractAddress(e.target.value);
+                                    setAmountError('');
+                                }
+                                }
+                                disabled
+                                sx={{
+                                    width: '100%',
+                                    backgroundColor: 'var(--surface-bg)',
+                                    border: '1px solid var(--border-color)',
+                                    borderRadius: '12px',
+                                    color: 'var(--text-primary)',
+                                    '&:hover': {
+                                        borderColor: 'var(--accent-color)',
+                                    },
+                                }}
+                            />
+                        </span>
+                    </Tooltip>
+                </FormControl>
+
+                <FormControl
+                    error={!!amountError}
                     sx={{
                         width: '100%',
-                        backgroundColor: 'var(--surface-bg)',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '12px',
-                        color: 'var(--text-primary)',
-                        '&:hover': {
-                            borderColor: 'var(--accent-color)',
-                        },
                     }}
-                />
+                >
+                    <FormLabel
+                        sx={{
+                            color: 'var(--text-primary)',
+                        }}
+                    >
+                        Amount to borrow
+                    </FormLabel>
+                    <Input
+                        error={!!amountError}
+                        required
+                        type="number"
+                        placeholder="Amount to borrow"
+                        value={amountToBorrow === 0 ? "" : amountToBorrow}
+                        onChange={(e) => {
+                            setAmountToBorrow(Number(e.target.value));
+                            setAmountError('');
+                        }}
+                        sx={{
+                            width: '100%',
+                            backgroundColor: 'var(--surface-bg)',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '12px',
+                            color: 'var(--text-primary)',
+                            '&:hover': {
+                                borderColor: 'var(--accent-color)',
+                            },
+                        }}
+                    />
+                    {amountError && (
+                        <FormHelperText sx={{ color: 'var(--accent-color)' }}>
+                            {amountError}
+                        </FormHelperText>
+                    )}
+                </FormControl>
+                <Tooltip title="Custom arbitrage contract coming soon." variant="solid">
+                    <span style={{ width: '100%' }}>
+                        <Input
+                            placeholder="Arbitrage contract address 0x00...000"
+                            value={arbitrageContractAddress}
+                            onChange={(e) => setArbitrageContractAddress(e.target.value)}
+                            disabled
+                            sx={{
+                                width: '100%',
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    borderColor: 'var(--accent-color)',
+                                },
+                            }}
+                        />
+                    </span>
+                </Tooltip>
+
                 <div className="rate-info">
                     <div className="rate-row">
                         <Typography
@@ -473,7 +385,7 @@ export const SingleFlashLoan = () => {
                             textColor="common.white"
                             sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
                         >
-                            Fee: %
+                            Fee: {feePercentage * 100} %
                         </Typography>
                     </div>
                     <div className="rate-row">
@@ -482,15 +394,16 @@ export const SingleFlashLoan = () => {
                             textColor="common.white"
                             sx={{ fontWeight: 'xl', mixBlendMode: 'difference' }}
                         >
-                            Fee: ETH
+                            Fee: {amountOfFee / 1e6} USDC
                         </Typography>
                     </div>
                 </div>
 
 
                 <Button
+                    type='submit'
                     className="swap-action-button"
-                    onClick={() => { alert("execute flash loan"); setValue(100) }}
+                    onClick={handleSubmit}
                     loading={isInProgress}
                     disabled={!activeAccount}
                 >
@@ -551,7 +464,7 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Borrowing {ethers.utils.formatEther(loanAmountReceived.amount)} ETH
+                                Borrowing {ethers.utils.formatEther(amountToBorrow)} ETH
                             </Typography>
                         </Stack>
                     }
@@ -585,7 +498,7 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Repaying loan of {ethers.utils.formatEther(loanAmountRepaid.amount)} ETH
+                                Repaying loan of {ethers.utils.formatEther(amountToBorrow)} ETH
                             </Typography>
                         </Stack>
                     }
@@ -602,7 +515,7 @@ export const SingleFlashLoan = () => {
                                 🎉
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Review your profit of {ethers.utils.formatEther(profitSent.amount)} ETH on your wallet account
+                                Review your profit of X ETH on your wallet account
                             </Typography>
                         </Stack>
                     }

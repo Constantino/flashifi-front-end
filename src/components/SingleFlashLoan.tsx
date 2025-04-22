@@ -17,10 +17,11 @@ import Button from '@mui/joy/Button';
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { ethers } from 'ethers';
 import { abi as tokenAbi } from '../assets/tokenAbi.json';
-import { SimpleFlashLoanABI } from '../assets/SimpleFlashLoan.abi.json';
+import SimpleFlashLoanABI from '../assets/SimpleFlashLoan.abi.json';
 import { createThirdwebClient } from "thirdweb";
 import Tooltip from '@mui/joy/Tooltip';
 import FormHelperText from '@mui/joy/FormHelperText';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -92,6 +93,11 @@ interface FlashLoanEvent {
     userAddress: string;
 }
 
+const explorerUrl = {
+    sepolia: "https://sepolia.etherscan.io/tx/",
+    optimism: "https://optimistic.etherscan.io/tx/",
+}
+
 export const SingleFlashLoan = () => {
 
     const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
@@ -110,6 +116,8 @@ export const SingleFlashLoan = () => {
     const [flashLoanContractAddressError, setFlashLoanContractAddressError] = useState<string>('');
     const [arbitrageContractAddressError, setArbitrageContractAddressError] = useState<string>('');
 
+    const [txHash, setTxHash] = useState<string>('second');
+    const [txHashCopied, setTxHashCopied] = useState<boolean>(false);
 
     const switchChain = useSwitchActiveWalletChain();
     const activeAccount = useActiveAccount();
@@ -175,16 +183,21 @@ export const SingleFlashLoan = () => {
     }
 
     const callSimpleFlashLoan = async () => {
-        // SimpleFlashLoanABI
         const signer = await getSigner(sepolia);
-        const connectedContract = new ethers.Contract(contractHandlerAddress, tokenAbi, signer);
-        await connectedContract.fn_RequestFlashLoan(
-            "token",
-            "amount"
+        const connectedContract = new ethers.Contract(flashLoanContractHandlerAddress, SimpleFlashLoanABI, signer);
+        const tx = await connectedContract.fn_RequestFlashLoan(
+            tokenContractAddress,
+            amountToBorrow
         )
+
+        const result = await tx.wait();
+
+        console.log("result: ", result);
+        setTxHash(result.transactionHash);
+
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         let isThereAnError = false;
         if (flashLoanContractHandlerAddress === "") {
@@ -223,9 +236,28 @@ export const SingleFlashLoan = () => {
             return;
         }
 
-        alert("execute flash loan");
+        // alert("execute flash loan");
+        const txResult = await callSimpleFlashLoan();
+        console.log("txResult: ", txResult);
         setValue(100);
     };
+
+    const shortenTxHash = (txHash: string): string => {
+        if (!txHash || txHash.length <= 10) return txHash; // Return as is if too short
+        const halfLength = Math.floor(txHash.length / 2);
+        return `${txHash.slice(0, halfLength / 2)}...${txHash.slice(-halfLength / 2)}`;
+    };
+
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                console.log('Text copied to clipboard:', text);
+                setTxHashCopied(true);
+            })
+            .catch((err) => {
+                console.error('Error copying text: ', err);
+            });
+    }
 
     return (
         <div className="swap-container">
@@ -464,7 +496,7 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Borrowing {ethers.utils.formatEther(amountToBorrow)} ETH
+                                Borrowing {amountToBorrow / 1e6} USDC
                             </Typography>
                         </Stack>
                     }
@@ -498,7 +530,7 @@ export const SingleFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Repaying loan of {ethers.utils.formatEther(amountToBorrow)} ETH
+                                Repaying loan of {amountToBorrow / 1e6} USDC
                             </Typography>
                         </Stack>
                     }
@@ -514,9 +546,25 @@ export const SingleFlashLoan = () => {
                             <Typography >
                                 🎉
                             </Typography>
-                            <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Review your profit of X ETH on your wallet account
+                            <Typography sx={{ color: 'var(--text-primary)' }}>
+                                Review your tx:
                             </Typography>
+                            <Typography sx={{ color: 'var(--text-primary)' }} >
+
+                                <a href={`${explorerUrl[chainInUse?.id == 11155111 ? 'sepolia' : 'optimism']}${txHash}`} target="_blank" rel="noopener noreferrer">
+                                    {shortenTxHash(txHash)}
+                                </a>
+
+                            </Typography>
+                            <Tooltip title={txHashCopied ? "Copied!" : "Copy to clipboard"} variant="solid">
+                                <ContentCopyIcon
+                                    onClick={() => handleCopy(txHash)}
+                                    sx={{
+                                        color: 'var(--text-primary)',
+                                        cursor: 'pointer',
+                                    }}
+                                />
+                            </Tooltip>
                         </Stack>
                     }
                 </Box>

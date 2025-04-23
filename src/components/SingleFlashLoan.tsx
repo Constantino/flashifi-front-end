@@ -3,95 +3,20 @@ import '../App.css'
 import Stack from '@mui/joy/Stack';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
-import Select, { selectClasses } from '@mui/joy/Select';
-import Option from '@mui/joy/Option';
 import Box from '@mui/joy/Box';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Input from '@mui/joy/Input';
 import LinearProgress from '@mui/joy/LinearProgress';
 import Typography from '@mui/joy/Typography';
-import ClearIcon from '@mui/icons-material/Clear';
-import { defineChain, sepolia } from "thirdweb/chains";
+import { sepolia } from "thirdweb/chains";
 import { useActiveAccount, useActiveWalletChain, useSwitchActiveWalletChain } from "thirdweb/react";
 import Button from '@mui/joy/Button';
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { ethers } from 'ethers';
-import { abi as tokenAbi } from '../assets/tokenAbi.json';
 import SimpleFlashLoanABI from '../assets/SimpleFlashLoan.abi.json';
 import { createThirdwebClient } from "thirdweb";
 import Tooltip from '@mui/joy/Tooltip';
 import FormHelperText from '@mui/joy/FormHelperText';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-
-const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
-    {
-        id: 901,
-        name: "Supersim Chain A",
-        rpc: "http://127.0.0.1:9545",
-        nativeCurrency: {
-            name: "Ether",
-            symbol: "ETH",
-            decimals: 18,
-        },
-    }
-) :
-    defineChain(
-        {
-            id: 420120000,
-            name: "interop-alpha-0",
-            rpc: "https://interop-alpha-0.optimism.io",
-            nativeCurrency: {
-                name: "Ether",
-                symbol: "ETH",
-                decimals: 18,
-            },
-        }
-    )
-
-const superchainB = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
-    {
-        id: 902,
-        name: "Supersim Chain B",
-        rpc: "http://127.0.0.1:9546",
-        nativeCurrency: {
-            name: "Ether",
-            symbol: "ETH",
-            decimals: 18,
-        },
-    }
-) :
-    defineChain(
-        {
-            id: 420120001,
-            name: "interop-alpha-1",
-            rpc: "https://interop-alpha-1.optimism.io",
-            nativeCurrency: {
-                name: "Ether",
-                symbol: "ETH",
-                decimals: 18,
-            },
-        }
-    )
-
-// interface Token {
-//     symbol: string;
-//     name: string;
-//     logo?: string;
-// }
-
-// const commonTokens: Token[] = [
-//     { symbol: 'ETH', name: 'Ethereum', logo: 'https://tokens.1inch.io/0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee.png' },
-//     { symbol: 'USDT', name: 'Tether USD', logo: 'https://tokens.1inch.io/0xdac17f958d2ee523a2206206994597c13d831ec7.png' },
-//     { symbol: 'USDC', name: 'USD Coin', logo: 'https://tokens.1inch.io/0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.png' },
-//     { symbol: 'DAI', name: 'Dai Stablecoin', logo: 'https://tokens.1inch.io/0x6b175474e89094c44da98b954eedeac495271d0f.png' },
-// ]
-
-interface FlashLoanEvent {
-    flashLoanId: string;
-    amount: ethers.BigNumber;
-    chainId: ethers.BigNumber;
-    userAddress: string;
-}
 
 const explorerUrl = {
     sepolia: "https://sepolia.etherscan.io/tx/",
@@ -100,21 +25,22 @@ const explorerUrl = {
 
 export const SingleFlashLoan = () => {
 
-    const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
+    const customFlashLoanContractHandlerAddress = import.meta.env.VITE_CUSTOM_FLASHLOAN_CONTRACT_HANDLER_ADDRESS;
+    const USDCTokenContractAddress = import.meta.env.VITE_USDC_TOKEN_CONTRACT_ADDRESS;
 
     const [value, setValue] = useState(0)
     const [isInProgress, setIsInProgress] = useState(false)
-    const [flashLoanContractHandlerAddress, setFlashLoanContractHandlerAddress] = useState("0xe0501A11247f59F5b647E29F037E48F2ff3F9383");
-    const [tokenContractAddress, setTokenContractAddress] = useState("0x94a9D9AC8a22534E3FaCa9F4e7F2E2cf85d5E4C8");
+    const [flashLoanContractHandlerAddress, setFlashLoanContractHandlerAddress] = useState(customFlashLoanContractHandlerAddress);
+    const [tokenContractAddress, setTokenContractAddress] = useState(USDCTokenContractAddress);
     const [amountToBorrow, setAmountToBorrow] = useState(0);
     const feePercentage = 0.09;
     const [amountOfFee, setAmountOfFee] = useState(0);
     const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
 
     const [amountError, setAmountError] = useState<string>('');
-    const [tokenAddressError, setTokenAddressError] = useState<string>('');
+    // const [tokenAddressError, setTokenAddressError] = useState<string>('');
     const [flashLoanContractAddressError, setFlashLoanContractAddressError] = useState<string>('');
-    const [arbitrageContractAddressError, setArbitrageContractAddressError] = useState<string>('');
+    // const [arbitrageContractAddressError, setArbitrageContractAddressError] = useState<string>('');
 
     const [txHash, setTxHash] = useState<string>('second');
     const [txHashCopied, setTxHashCopied] = useState<boolean>(false);
@@ -142,15 +68,6 @@ export const SingleFlashLoan = () => {
         setAmountOfFee(amountToBorrow * feePercentage);
 
     }, [amountToBorrow])
-
-    const executeFlashLoan = async () => {
-
-        setValue(0);
-        setIsInProgress(true)
-
-        await callSimpleFlashLoan()
-    }
-
 
     const IsAddressChecksumGood = (address: string) => {
         if (address === undefined) {
@@ -236,10 +153,17 @@ export const SingleFlashLoan = () => {
             return;
         }
 
-        // alert("execute flash loan");
-        const txResult = await callSimpleFlashLoan();
-        console.log("txResult: ", txResult);
-        setValue(100);
+        try {
+            setIsInProgress(true);
+            const txResult = await callSimpleFlashLoan();
+            console.log("txResult: ", txResult);
+            setValue(100);
+            setIsInProgress(false);
+        } catch (error) {
+            console.error("Error: ", error);
+            setIsInProgress(false);
+            return;
+        }
     };
 
     const shortenTxHash = (txHash: string): string => {

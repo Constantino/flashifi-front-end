@@ -386,11 +386,11 @@ export const CrossFlashLoan = () => {
             try {
                 if (willUseCustomArbitrageContract) {
                     await connectedContractB.callFlashLoanHandler(superchainA.id, arbitrageContractAddress).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                        suscribeToChainEvents(connectedContractB, connectedContractA);
                     });
                 } else {
                     await connectedContractB.callFlashLoanHandler(superchainA.id).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
+                        suscribeToChainEvents(connectedContractB, connectedContractA);
                     });
                 }
             } catch (error) {

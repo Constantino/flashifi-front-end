@@ -19,6 +19,7 @@ import { ethers } from 'ethers';
 import { abi as tokenAbi } from '../assets/tokenAbi.json';
 import { createThirdwebClient } from "thirdweb";
 import OPLogo from '../assets/OPLogo.svg';
+import { concat } from 'ethers/lib/utils';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -88,6 +89,14 @@ interface FlashLoanEvent {
     amount: ethers.BigNumber;
     chainId: ethers.BigNumber;
     userAddress: string;
+}
+
+interface LogId {
+    origin: string;
+    blockNumber: number;
+    logIndex: number;
+    timestamp: number;
+    chainId: number;
 }
 
 export const CrossFlashLoan = () => {
@@ -277,6 +286,15 @@ export const CrossFlashLoan = () => {
 
     }
 
+    const getProvider = async (chain: any) => {
+        const provider = ethers5Adapter.provider.toEthers({
+            client,
+            chain,
+        });
+
+        return provider;
+    }
+
 
     const getSigner = async (chain: any) => {
         if (!activeAccount) {
@@ -287,15 +305,105 @@ export const CrossFlashLoan = () => {
         return signer;
     }
 
-    const suscribeToChainEvents = (connectedContractA: any, connectedContractB: any) => {
-        let flashLoanRecievedFilter = connectedContractA.filters.flashLoanRecieved(null, null, null, address);
+    const getLatestAction = async (connectedContractA: any): Promise<[LogId, Uint8Array] | undefined> => {
+        const providerA = await getProvider(superchainA)
+        console.log("provider: ", providerA)
+        const latestBlockNumber = await providerA.getBlockNumber();
+        const allFlashLoanEvents = await providerA.getLogs({
+            address: connectedContractA.address,
+            fromBlock: 0,
+            toBlock: latestBlockNumber,
+            topics: [ethers.utils.id("flashLoanRepayed(bytes32,uint256,uint256,address)")]
+        });
+        const allFlashLoanRequestEvents = await providerA.getLogs({
+            address: connectedContractA.address,
+            fromBlock: 0,
+            toBlock: latestBlockNumber,
+            topics: [ethers.utils.id("flashLoanRecieved(bytes32,uint256,uint256,address)")]
+        });
+        console.log('Latest block repaid events:', allFlashLoanEvents);
+        console.log('Latest block request events:', allFlashLoanRequestEvents);
 
-        connectedContractA.on(flashLoanRecievedFilter, (flashLoanId: any, loanAmountRecieved: any, chainId: any, userAddress: any) => {
+        if (allFlashLoanEvents.length === 0) {
+            console.log("No events found in the latest block");
+            return undefined;
+        }
+
+        let blockNumberOfRepaidEvent = 0;
+        let blockNumberOfRequestEvent = 0;
+
+        for (let i = allFlashLoanEvents.length - 1; i >= 0; i--) {
+            const parsedLog = await connectedContractA.interface.parseLog(allFlashLoanEvents[i]);
+            console.log("Decoded log:", {
+                name: parsedLog.name,
+                args: parsedLog.args
+            });
+            if (parsedLog.args[3] == address) {
+                console.log("Found repaid event from user: ", parsedLog, " at log: ", allFlashLoanEvents[i])
+                blockNumberOfRepaidEvent = allFlashLoanEvents[i].blockNumber;
+                break;
+            }
+        }
+        for (let i = allFlashLoanRequestEvents.length - 1; i >= 0; i--) {
+            const parsedLog = await connectedContractA.interface.parseLog(allFlashLoanRequestEvents[i]);
+            console.log("Decoded log:", {
+                name: parsedLog.name,
+                args: parsedLog.args
+            });
+            if (parsedLog.args[3] == address) {
+                console.log("Found request event from user: ", parsedLog, " at log: ", allFlashLoanRequestEvents[i])
+                blockNumberOfRequestEvent = allFlashLoanRequestEvents[i].blockNumber;
+                break;
+            }
+        }
+
+        if (blockNumberOfRepaidEvent < blockNumberOfRequestEvent) {
+            alert("There is a flash loan that has not been repaid")
+            return undefined;
+        }
+
+        const latestLog = allFlashLoanEvents[allFlashLoanEvents.length - 1];
+        if (!latestLog) {
+            alert("No flash loan events found")
+            return undefined;
+        }
+        console.log("latest log: ", latestLog)
+        const latestBlock = await providerA.getBlock(latestLog.blockNumber);
+        console.log("latest block: ", latestBlock)
+        const parsedLatestLog = await connectedContractA.interface.parseLog(latestLog);
+        console.log("parsed latest log: ", parsedLatestLog)
+
+        const logId: LogId = {
+            origin: latestLog.address,
+            blockNumber: latestLog.blockNumber,
+            logIndex: latestLog.logIndex,
+            timestamp: latestBlock.timestamp,
+            chainId: parsedLatestLog.args[2].toNumber()
+        };
+
+        const actionData = concat([...latestLog.topics, latestLog.data])
+
+        return [logId, actionData];
+    }
+
+    const suscribeToChainEvents = async (connectedContractA: any, connectedContractB: any) => {
+        let flashLoanRecievedFilter = connectedContractA.filters.flashLoanRecieved(null, null, null, address);
+        const providerA = await getProvider(superchainA)
+        console.log("provider: ", providerA)
+
+
+        connectedContractA.on(flashLoanRecievedFilter, async (flashLoanId: any, loanAmountRecieved: any, chainId: any, userAddress: any) => {
+            // Get logs for this specific event
+            // const flashLoanReceivedLogs = await providerA.getLogs({
+            //     ...flashLoanRecievedFilter,
+            //     fromBlock: 0,
+            //     toBlock: 'latest'
+            // });
+            // console.log('Historical logs for this event:', flashLoanReceivedLogs);
 
             setLoanAmountReceived({ flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
             setIsLoanReceived(true)
             console.log('loan amount received: ', { flashLoanId: flashLoanId, amount: loanAmountRecieved, chainId: chainId, userAddress: userAddress })
-
         })
 
         let soldEthFilter = connectedContractB.filters.soldEth(null, null, null, address);
@@ -322,11 +430,12 @@ export const CrossFlashLoan = () => {
         })
 
         let sentProfitFilter = connectedContractA.filters.sentProfit(null, null, null, address);
-        connectedContractA.on(sentProfitFilter, (flashLoanId: any, profit: any, chainId: any, userAddress: any) => {
+        connectedContractA.on(sentProfitFilter, async (flashLoanId: any, profit: any, chainId: any, userAddress: any) => {
             setProfitSent({ flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress })
             setIsProfitSent(true)
             console.log('profit sent: ', { flashLoanId: flashLoanId, amount: profit, chainId: chainId, userAddress: userAddress });
         })
+
     }
 
     const callContract = async () => {
@@ -364,17 +473,43 @@ export const CrossFlashLoan = () => {
         if (chainInUse.id == superchainA.id) {
             try {
                 if (willUseCustomArbitrageContract) {
-                    await connectedContractA.callFlashLoanHandler(superchainB.id, arbitrageContractAddress).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
+                    const result = await getLatestAction(connectedContractA);
+                    if (result) {
+                        const [logId, actionData] = result;
+                        console.log("logId: ", logId);
+                        console.log("actionData: ", actionData);
+                    }
+                    // await connectedContractA.callFlashLoanHandler(superchainB.id, arbitrageContractAddress).then(() => {
+                    //     suscribeToChainEvents(connectedContractA, connectedContractB);
+                    // });
                 } else {
-                    await connectedContractA.callFlashLoanHandler(superchainB.id).then(() => {
-                        suscribeToChainEvents(connectedContractA, connectedContractB);
-                    });
+                    const result = await getLatestAction(connectedContractA);
+                    console.log("result: ", result)
+                    let logId;
+                    let actionData;
+                    if (result) {
+                        console.log("result is not undefined")
+                        const [_logId, _actionData] = result;
+                        logId = _logId;
+                        actionData = _actionData;
+                        console.log("logId: ", logId);
+                        console.log("actionData: ", actionData);
+
+                        const response = await connectedContractA.callFlashLoanHandler(logId, actionData, superchainB.id).then(() => {
+                            suscribeToChainEvents(connectedContractA, connectedContractB);
+                        });
+                        console.log("response: ", response);
+                    } else {
+                        const response = await connectedContractA.callFlashLoanHandlerSimple(superchainB.id).then(() => {
+                            suscribeToChainEvents(connectedContractA, connectedContractB);
+                        });
+                        console.log("response: ", response);
+                    }
+
                 }
             } catch (error) {
                 if (error instanceof Error) {
-                    alert(error.message);
+                    console.log(error.message);
                 } else {
                     alert("An unknown error occurred");
                 }

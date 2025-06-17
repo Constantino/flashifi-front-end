@@ -20,6 +20,9 @@ import { abi as tokenAbi } from '../assets/tokenAbi.json';
 import { createThirdwebClient } from "thirdweb";
 import OPLogo from '../assets/OPLogo.svg';
 import { concat } from 'ethers/lib/utils';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
+import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -119,6 +122,7 @@ export const CrossFlashLoan = () => {
     const [isInProgress, setIsInProgress] = useState(false)
     const [advancedFeatures, setAdvancedFeatures] = useState(false);
     const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
+    const [swapRows, setSwapRows] = useState(2);
 
     const switchChain = useSwitchActiveWalletChain();
     const activeAccount = useActiveAccount();
@@ -545,6 +549,16 @@ export const CrossFlashLoan = () => {
         console.log('contract called')
     }
 
+    const handleAddSwapRow = () => {
+        setSwapRows(prev => prev + 1);
+    };
+
+    const handleRemoveSwapRow = (indexToRemove: number) => {
+        if (swapRows > 2) { // Keep at least 2 rows
+            setSwapRows(prev => prev - 1);
+        }
+    };
+
     return (
         <div className="swap-container">
             <div className="swap-header">
@@ -580,74 +594,144 @@ export const CrossFlashLoan = () => {
                 </Stack>
                 <Stack
                     direction="row"
-                    justifyContent="center"
-                    alignItems="center"
-                    spacing={2}
-                    sx={{ width: '100%' }}
+                    justifyContent="space-between "
+                    alignItems="left"
+                    spacing={10}
+                    sx={{ width: '100%', paddingLeft: '10%' }}
                 >
-                    <Box sx={{ minWidth: 120 }}>
+                    <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
+                    <FormLabel sx={{ color: 'var(--text-primary)' }}>To</FormLabel>
+                    <FormLabel sx={{ color: 'var(--text-primary)' }}>Quote</FormLabel>
 
-                        <FormControl>
-                            <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
-                            <Select
-                                value={chainFrom}
-                                onChange={handleChangeChainA}
-                                indicator={<KeyboardArrowDown />}
-                                sx={{
-                                    backgroundColor: 'var(--surface-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                    color: 'var(--text-primary)',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--surface-bg)',
-                                        borderColor: 'var(--accent-color)',
-                                    },
-                                    [`& .${selectClasses.indicator}`]: {
-                                        transition: '0.2s',
-                                        [`&.${selectClasses.expanded}`]: {
-                                            transform: 'rotate(-180deg)',
-                                        },
-                                    },
-
-                                }}
-                                disabled={isInProgress || !activeAccount}
-                            >
-                                <Option value="0">Devnet 0</Option>
-                                <Option value="1">Devnet 1</Option>
-                            </Select>
-                        </FormControl>
-                    </Box>
-                    <Box sx={{ minWidth: 120 }}>
-                        <FormControl>
-                            <FormLabel sx={{ color: 'var(--text-primary)' }}>To</FormLabel>
-                            <Select
-                                value={chainTo}
-                                indicator={<KeyboardArrowDown />}
-                                sx={{
-                                    backgroundColor: 'var(--surface-bg)',
-                                    border: '1px solid var(--border-color)',
-                                    borderRadius: '12px',
-                                    color: 'var(--text-primary)',
-                                    '&:hover': {
-                                        backgroundColor: 'var(--surface-bg)',
-                                        borderColor: 'var(--accent-color)',
-                                    },
-                                    [`& .${selectClasses.indicator}`]: {
-                                        transition: '0.2s',
-                                        [`&.${selectClasses.expanded}`]: {
-                                            transform: 'rotate(-180deg)',
-                                        },
-                                    },
-
-                                }}
-                                disabled
-                            >
-                                <Option value="0">Devnet 0</Option>
-                                <Option value="1">Devnet 1</Option>
-                            </Select>
-                        </FormControl>
-                    </Box>
                 </Stack>
+
+                {Array.from({ length: swapRows }).map((_, index) => (
+                    <Stack
+                        key={index}
+                        id={index === 0 ? "firstSwap" : `swap-${index}`}
+                        direction="row"
+                        justifyContent="center"
+                        alignItems="center"
+                        spacing={2}
+                        sx={{ width: '100%' }}
+                    >
+                        {index === 0 ? (
+                            <div style={{ width: '24px' }} />
+                        ) : index === swapRows - 1 ? (
+                            <AddCircleRoundedIcon onClick={handleAddSwapRow} style={{ cursor: 'pointer' }} />
+                        ) : (
+                            <RemoveCircleRoundedIcon onClick={() => handleRemoveSwapRow(index)} style={{ cursor: 'pointer' }} />
+                        )}
+                        <Select
+                            value={chainFrom}
+                            onChange={handleChangeChainA}
+                            indicator={<KeyboardArrowDown />}
+                            sx={{
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'var(--surface-bg)',
+                                    borderColor: 'var(--accent-color)',
+                                },
+                                [`& .${selectClasses.indicator}`]: {
+                                    transition: '0.2s',
+                                    [`&.${selectClasses.expanded}`]: {
+                                        transform: 'rotate(-180deg)',
+                                    },
+                                },
+                            }}
+                            disabled={isInProgress || !activeAccount}
+                        >
+                            <Option value="0">Token A</Option>
+                            <Option value="1">Token B</Option>
+                            <Option value="2">Token C</Option>
+                            <Option value="3">Token D</Option>
+                        </Select>
+                        <Select
+                            value={chainFrom}
+                            onChange={handleChangeChainA}
+                            indicator={<KeyboardArrowDown />}
+                            sx={{
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'var(--surface-bg)',
+                                    borderColor: 'var(--accent-color)',
+                                },
+                                [`& .${selectClasses.indicator}`]: {
+                                    transition: '0.2s',
+                                    [`&.${selectClasses.expanded}`]: {
+                                        transform: 'rotate(-180deg)',
+                                    },
+                                },
+                            }}
+                            disabled={isInProgress || !activeAccount}
+                        >
+                            <Option value="0">Devnet 0</Option>
+                            <Option value="1">Devnet 1</Option>
+                        </Select>
+
+                        <SwapHorizIcon />
+
+                        <Select
+                            value={chainFrom}
+                            onChange={handleChangeChainA}
+                            indicator={<KeyboardArrowDown />}
+                            sx={{
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'var(--surface-bg)',
+                                    borderColor: 'var(--accent-color)',
+                                },
+                                [`& .${selectClasses.indicator}`]: {
+                                    transition: '0.2s',
+                                    [`&.${selectClasses.expanded}`]: {
+                                        transform: 'rotate(-180deg)',
+                                    },
+                                },
+                            }}
+                            disabled={isInProgress || !activeAccount}
+                        >
+                            <Option value="0">Token A</Option>
+                            <Option value="1">Token B</Option>
+                            <Option value="2">Token C</Option>
+                            <Option value="3">Token D</Option>
+                        </Select>
+
+                        <Select
+                            value={chainTo}
+                            indicator={<KeyboardArrowDown />}
+                            sx={{
+                                backgroundColor: 'var(--surface-bg)',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '12px',
+                                color: 'var(--text-primary)',
+                                '&:hover': {
+                                    backgroundColor: 'var(--surface-bg)',
+                                    borderColor: 'var(--accent-color)',
+                                },
+                                [`& .${selectClasses.indicator}`]: {
+                                    transition: '0.2s',
+                                    [`&.${selectClasses.expanded}`]: {
+                                        transform: 'rotate(-180deg)',
+                                    },
+                                },
+                            }}
+                        >
+                            <Option value="0">Devnet 0</Option>
+                            <Option value="1">Devnet 1</Option>
+                        </Select>
+
+                        <FormLabel sx={{ color: 'var(--text-primary)' }}> 0.000 </FormLabel>
+                    </Stack>
+                ))}
 
                 {
                     advancedFeatures &&

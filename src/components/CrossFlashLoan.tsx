@@ -500,6 +500,8 @@ export const CrossFlashLoan = () => {
                         });
                         console.log("response: ", response);
                     } else {
+                        console.log("result is undefined, calling flashLoanHandlerSimple")
+                        console.log("superchainB.id: ", superchainB.id)
                         const response = await connectedContractA.callFlashLoanHandlerSimple(superchainB.id).then(() => {
                             suscribeToChainEvents(connectedContractA, connectedContractB);
                         });

@@ -33,7 +33,7 @@ export const SingleFlashLoan = () => {
     const [flashLoanContractHandlerAddress, setFlashLoanContractHandlerAddress] = useState(customFlashLoanContractHandlerAddress);
     const [tokenContractAddress, setTokenContractAddress] = useState(USDCTokenContractAddress);
     const [amountToBorrow, setAmountToBorrow] = useState(0);
-    const feePercentage = 0.09;
+    const feePercentage = 0.05 / 100;
     const [amountOfFee, setAmountOfFee] = useState(0);
     const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
 
@@ -104,7 +104,7 @@ export const SingleFlashLoan = () => {
         const connectedContract = new ethers.Contract(flashLoanContractHandlerAddress, SimpleFlashLoanABI, signer);
         const tx = await connectedContract.fn_RequestFlashLoan(
             tokenContractAddress,
-            amountToBorrow
+            100
         )
 
         const result = await tx.wait();

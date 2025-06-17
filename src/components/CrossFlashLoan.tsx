@@ -102,6 +102,13 @@ interface LogId {
     chainId: number;
 }
 
+interface SwapState {
+    tokenFrom: string;
+    chainFrom: string;
+    tokenTo: string;
+    chainTo: string;
+}
+
 export const CrossFlashLoan = () => {
 
     const contractHandlerAddress = import.meta.env.VITE_ENVIRONMENT == 'local' ? import.meta.env.VITE_CONTRACT_HANDLER_LOCAL : import.meta.env.VITE_CONTRACT_HANDLER_DEVNET;
@@ -123,6 +130,11 @@ export const CrossFlashLoan = () => {
     const [advancedFeatures, setAdvancedFeatures] = useState(false);
     const [arbitrageContractAddress, setArbitrageContractAddress] = useState("");
     const [swapRows, setSwapRows] = useState(2);
+
+    const [swapStates, setSwapStates] = useState<SwapState[]>([
+        { tokenFrom: '', chainFrom: '', tokenTo: '', chainTo: '' },
+        { tokenFrom: '', chainFrom: '', tokenTo: '', chainTo: '' }
+    ]);
 
     const switchChain = useSwitchActiveWalletChain();
     const activeAccount = useActiveAccount();
@@ -549,13 +561,68 @@ export const CrossFlashLoan = () => {
         console.log('contract called')
     }
 
+    const handleSwapStateChange = (rowIndex: number, field: keyof SwapState, value: string) => {
+        setSwapStates(prev => {
+            const newStates = prev.map((row, index) =>
+                index === rowIndex ? { ...row, [field]: value } : row
+            );
+
+            // If we're modifying the first row's "from" values, update the last row's "to" values
+            if (rowIndex === 0 && (field === 'tokenFrom' || field === 'chainFrom')) {
+                const lastIndex = newStates.length - 1;
+                newStates[lastIndex] = {
+                    ...newStates[lastIndex],
+                    tokenTo: newStates[0].tokenFrom,
+                    chainTo: newStates[0].chainFrom
+                };
+            }
+
+            // If we're modifying the second-to-last row's "to" values, update the last row's "from" values
+            if (rowIndex === newStates.length - 2 && (field === 'tokenTo' || field === 'chainTo')) {
+                const lastIndex = newStates.length - 1;
+                newStates[lastIndex] = {
+                    ...newStates[lastIndex],
+                    tokenFrom: newStates[rowIndex].tokenTo,
+                    chainFrom: newStates[rowIndex].chainTo
+                };
+            }
+
+            return newStates;
+        });
+    };
+
     const handleAddSwapRow = () => {
         setSwapRows(prev => prev + 1);
+        setSwapStates(prev => {
+            const newStates = [...prev];
+            const lastIndex = newStates.length - 1;
+            const previousRow = newStates[lastIndex - 1];
+            // Add new row with "from" values matching previous row's "to" values
+            newStates.splice(lastIndex, 0, {
+                tokenFrom: previousRow.tokenTo,
+                chainFrom: previousRow.chainTo,
+                tokenTo: '',
+                chainTo: ''
+            });
+            return newStates;
+        });
     };
 
     const handleRemoveSwapRow = (indexToRemove: number) => {
-        if (swapRows > 2) { // Keep at least 2 rows
+        if (swapRows > 2) {
             setSwapRows(prev => prev - 1);
+            setSwapStates(prev => {
+                const newStates = prev.filter((_, index) => index !== indexToRemove);
+                // Update the last row with inverse values from first row
+                const lastIndex = newStates.length - 1;
+                newStates[lastIndex] = {
+                    tokenFrom: newStates[0].tokenTo,
+                    chainFrom: newStates[0].chainTo,
+                    tokenTo: newStates[0].tokenFrom,
+                    chainTo: newStates[0].chainFrom
+                };
+                return newStates;
+            });
         }
     };
 
@@ -623,10 +690,11 @@ export const CrossFlashLoan = () => {
                             <RemoveCircleRoundedIcon onClick={() => handleRemoveSwapRow(index)} style={{ cursor: 'pointer' }} />
                         )}
                         <Select
-                            value={chainFrom}
-                            onChange={handleChangeChainA}
+                            value={swapStates[index].tokenFrom}
+                            onChange={(_, value) => value && handleSwapStateChange(index, 'tokenFrom', value)}
                             indicator={<KeyboardArrowDown />}
                             sx={{
+                                width: '180px',
                                 backgroundColor: 'var(--surface-bg)',
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '12px',
@@ -642,18 +710,20 @@ export const CrossFlashLoan = () => {
                                     },
                                 },
                             }}
-                            disabled={isInProgress || !activeAccount}
+                            disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
+                            <Option value="">Select Token</Option>
                             <Option value="0">Token A</Option>
                             <Option value="1">Token B</Option>
                             <Option value="2">Token C</Option>
                             <Option value="3">Token D</Option>
                         </Select>
                         <Select
-                            value={chainFrom}
-                            onChange={handleChangeChainA}
+                            value={swapStates[index].chainFrom}
+                            onChange={(_, value) => value && handleSwapStateChange(index, 'chainFrom', value)}
                             indicator={<KeyboardArrowDown />}
                             sx={{
+                                width: '180px',
                                 backgroundColor: 'var(--surface-bg)',
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '12px',
@@ -669,8 +739,9 @@ export const CrossFlashLoan = () => {
                                     },
                                 },
                             }}
-                            disabled={isInProgress || !activeAccount}
+                            disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
+                            <Option value="">Select Chain</Option>
                             <Option value="0">Devnet 0</Option>
                             <Option value="1">Devnet 1</Option>
                         </Select>
@@ -678,10 +749,11 @@ export const CrossFlashLoan = () => {
                         <SwapHorizIcon />
 
                         <Select
-                            value={chainFrom}
-                            onChange={handleChangeChainA}
+                            value={swapStates[index].tokenTo}
+                            onChange={(_, value) => value && handleSwapStateChange(index, 'tokenTo', value)}
                             indicator={<KeyboardArrowDown />}
                             sx={{
+                                width: '180px',
                                 backgroundColor: 'var(--surface-bg)',
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '12px',
@@ -697,8 +769,9 @@ export const CrossFlashLoan = () => {
                                     },
                                 },
                             }}
-                            disabled={isInProgress || !activeAccount}
+                            disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
+                            <Option value="">Select Token</Option>
                             <Option value="0">Token A</Option>
                             <Option value="1">Token B</Option>
                             <Option value="2">Token C</Option>
@@ -706,9 +779,11 @@ export const CrossFlashLoan = () => {
                         </Select>
 
                         <Select
-                            value={chainTo}
+                            value={swapStates[index].chainTo}
+                            onChange={(_, value) => value && handleSwapStateChange(index, 'chainTo', value)}
                             indicator={<KeyboardArrowDown />}
                             sx={{
+                                width: '180px',
                                 backgroundColor: 'var(--surface-bg)',
                                 border: '1px solid var(--border-color)',
                                 borderRadius: '12px',
@@ -724,7 +799,9 @@ export const CrossFlashLoan = () => {
                                     },
                                 },
                             }}
+                            disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
+                            <Option value="">Select Chain</Option>
                             <Option value="0">Devnet 0</Option>
                             <Option value="1">Devnet 1</Option>
                         </Select>

@@ -38,10 +38,15 @@ export const Headers = () => {
                 <nav className="main-nav">
                     <NavLink key={"super-flash-loan"} to={"super-flash-loan"}>
                         <button className={`nav-button ${activeTab === 'super' ? 'active' : ''}`} onClick={() => setActiveTab('super')}>
+                            🧠 How it works
+                        </button>
+                    </NavLink>
+                    <NavLink key={"super-flash-loan"} to={"super-flash-loan"}>
+                        <button className={`nav-button ${activeTab === 'super' ? 'active' : ''}`} onClick={() => setActiveTab('super')}>
                             ⭐ Super Flash Loan
                         </button>
                     </NavLink>
-                    <NavLink key={"single-flash-loan"} to={"single-flash-loan"}>
+                    {/* <NavLink key={"single-flash-loan"} to={"single-flash-loan"}>
                         <button className={`nav-button ${activeTab === 'single' ? 'active' : ''}`} onClick={() => setActiveTab('single')}>
                             🔗 Single Flash Loan
                         </button>
@@ -50,7 +55,7 @@ export const Headers = () => {
                         <button disabled className={`nav-button ${activeTab === 'strategies' ? 'active' : ''}`} onClick={() => setActiveTab('strategies')}>
                             🧠 Strategies
                         </button>
-                    </Tooltip>
+                    </Tooltip> */}
                 </nav>
                 {/* 
                 <Select

@@ -191,8 +191,8 @@
   background-color: var(--secondary-bg);
   border-radius: var(--border-radius);
   padding: 24px;
-  width: 100%;
-  max-width: 50%;
+  height: 100%;
+  max-width: 65%;
   border: 1px solid var(--border-color);
 }
 

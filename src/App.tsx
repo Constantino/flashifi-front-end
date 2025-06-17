@@ -16,7 +16,7 @@ function App() {
           <Routes>
             <Route path="/*" element={<CrossFlashLoan />} />
             <Route path="/super-flash-loan" element={<CrossFlashLoan />} />
-            <Route path="/single-flash-loan" element={<SingleFlashLoan />} />
+            {/* <Route path="/single-flash-loan" element={<SingleFlashLoan />} /> */}
           </Routes>
         </main>
       </ThirdwebProvider>

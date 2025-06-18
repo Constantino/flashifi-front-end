@@ -23,6 +23,7 @@ import { concat } from 'ethers/lib/utils';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import AddCircleRoundedIcon from '@mui/icons-material/AddCircleRounded';
 import RemoveCircleRoundedIcon from '@mui/icons-material/RemoveCircleRounded';
+import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 
 const superchainA = import.meta.env.VITE_ENVIRONMENT == 'local' ? defineChain(
     {
@@ -630,9 +631,9 @@ export const CrossFlashLoan = () => {
         <div className="swap-container">
             <div className="swap-header">
                 <h1>Super Flash Loan Arbitrage</h1>
-                <div className="swap-settings">
+                {/* <div className="swap-settings">
                     <button onClick={handleAdvancedFeatures} className="icon-button">⚙️</button>
-                </div>
+                </div> */}
             </div>
 
             <Stack
@@ -661,14 +662,14 @@ export const CrossFlashLoan = () => {
                 </Stack>
                 <Stack
                     direction="row"
-                    justifyContent="space-between "
-                    alignItems="left"
-                    spacing={10}
+                    justifyContent="left"
+                    alignItems="center"
+                    spacing={'50%'}
                     sx={{ width: '100%', paddingLeft: '10%' }}
                 >
                     <FormLabel sx={{ color: 'var(--text-primary)' }}>From</FormLabel>
                     <FormLabel sx={{ color: 'var(--text-primary)' }}>To</FormLabel>
-                    <FormLabel sx={{ color: 'var(--text-primary)' }}>Quote</FormLabel>
+                    {/* <FormLabel sx={{ color: 'var(--text-primary)' }}>Quote</FormLabel> */}
 
                 </Stack>
 
@@ -713,8 +714,8 @@ export const CrossFlashLoan = () => {
                             disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
                             <Option value="">Select Token</Option>
-                            <Option value="0">Token A</Option>
-                            <Option value="1">Token B</Option>
+                            <Option value="0">ETH</Option>
+                            <Option value="1">USDC</Option>
                             <Option value="2">Token C</Option>
                             <Option value="3">Token D</Option>
                         </Select>
@@ -746,7 +747,7 @@ export const CrossFlashLoan = () => {
                             <Option value="1">Devnet 1</Option>
                         </Select>
 
-                        <SwapHorizIcon />
+                        <ArrowForwardRoundedIcon />
 
                         <Select
                             value={swapStates[index].tokenTo}
@@ -772,8 +773,8 @@ export const CrossFlashLoan = () => {
                             disabled={isInProgress || !activeAccount || index === swapRows - 1}
                         >
                             <Option value="">Select Token</Option>
-                            <Option value="0">Token A</Option>
-                            <Option value="1">Token B</Option>
+                            <Option value="0">ETH</Option>
+                            <Option value="1">USDC</Option>
                             <Option value="2">Token C</Option>
                             <Option value="3">Token D</Option>
                         </Select>
@@ -806,7 +807,7 @@ export const CrossFlashLoan = () => {
                             <Option value="1">Devnet 1</Option>
                         </Select>
 
-                        <FormLabel sx={{ color: 'var(--text-primary)' }}> 0.000 </FormLabel>
+                        {/* <FormLabel sx={{ color: 'var(--text-primary)' }}> 0.000 </FormLabel> */}
                     </Stack>
                 ))}
 
@@ -913,20 +914,54 @@ export const CrossFlashLoan = () => {
                     }
                     {
                         value >= 100 / 5 * 2 &&
-                        <Stack
-                            direction="row"
-                            justifyContent="left"
-                            spacing={2}
-                            sx={{ width: '100%', paddingTop: "2%" }
-                            }>
+                        (
+                            <>
+                                <Stack
+                                    direction="row"
+                                    justifyContent="left"
+                                    spacing={2}
+                                    sx={{ width: '100%', paddingTop: "2%" }
+                                    }>
 
-                            <Typography >
-                                ✅
-                            </Typography>
-                            <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Selling {ethers.utils.formatEther(ethSold.amount)} ETH for USDC on {ethSold.chainId.toNumber()}
-                            </Typography>
-                        </Stack>
+                                    <Typography >
+                                        ✅
+                                    </Typography>
+                                    <Typography sx={{ color: 'var(--text-primary)' }} >
+                                        Selling {ethers.utils.formatEther(ethSold.amount)} ETH for USDC on {ethSold.chainId.toNumber()}
+                                    </Typography>
+
+                                </Stack>
+
+                                <Stack
+                                    direction="row"
+                                    justifyContent="left"
+                                    spacing={2}
+                                    sx={{ width: '100%', paddingTop: "2%" }
+                                    }>
+                                    <Typography >
+                                        ✅
+                                    </Typography>
+                                    <Typography sx={{ color: 'var(--text-primary)' }} >
+                                        Swapping USDC for Token C on {ethSold.chainId.toNumber()}
+                                    </Typography>
+                                </Stack>
+
+                                <Stack
+                                    direction="row"
+                                    justifyContent="left"
+                                    spacing={2}
+                                    sx={{ width: '100%', paddingTop: "2%" }
+                                    }>
+                                    <Typography >
+                                        ✅
+                                    </Typography>
+                                    <Typography sx={{ color: 'var(--text-primary)' }} >
+                                        Swapping Token C for USDC on {ethSold.chainId.toNumber()}
+                                    </Typography>
+                                </Stack>
+
+                            </>
+                        )
                     }
                     {
                         value >= 100 / 5 * 3 &&
@@ -941,7 +976,7 @@ export const CrossFlashLoan = () => {
                                 ✅
                             </Typography>
                             <Typography sx={{ color: 'var(--text-primary)' }} >
-                                Buying {ethers.utils.formatEther(ethBought.amount)} ETH for USDC on {ethBought.chainId.toNumber()}
+                                Buying {ethers.utils.formatEther(ethBought.amount)} ETH with USDC on {ethBought.chainId.toNumber()}
                             </Typography>
                         </Stack>
                     }
